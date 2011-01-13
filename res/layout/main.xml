@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        >
+        <in.shick.lockpatterngenerator.LockPatternView
+            android:id="@+id/patternOutputView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            />
+        <Button 
+            android:id="@+id/generateButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/generate_button_label"
+            />
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="10dp"
+            />
+        <Button 
+            android:id="@+id/settingsButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/settings_button_label"
+            />
+    </LinearLayout>
+</ScrollView>

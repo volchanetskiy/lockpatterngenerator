@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lock Pattern Generator</string>
+    <string name="settings_view_name">Generation Parameters</string>
+    <string name="generate_button_label">Generate</string>
+    <string name="settings_button_label">Settings</string>
+</resources>

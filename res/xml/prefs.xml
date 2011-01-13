@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+        <PreferenceCategory android:title="Path Length">
+            <EditTextPreference
+                    android:name="Minimum"
+                    android:inputType="number"
+                    android:summary="Include no fewer than this many nodes in paths"
+                    android:defaultValue="4"
+                    android:title="Minimum"
+                    android:key="minLengthPref"
+                    />
+            <EditTextPreference
+                    android:name="Maximum"
+                    android:inputType="number"
+                    android:summary="Include no more than this many nodes in paths"
+                    android:defaultValue="6"
+                    android:title="Maximum"
+                    android:key="maxLengthPref"
+                    />
+        </PreferenceCategory>
+        <PreferenceCategory android:title="Display">
+            <CheckBoxPreference
+                android:title="Highlight First Node"
+                android:summary="Make the beginning of the generated path more noticable"
+                android:defaultValue="false"
+                android:key="firstNodePref"
+                />
+        </PreferenceCategory>
+        <PreferenceCategory android:title="Other">
+            <PreferenceScreen
+                android:title="Other Settings"
+                android:summary="Settings that don't pertain to the Google lock screen"
+                >
+                <PreferenceCategory android:title="Grid">
+                    <EditTextPreference
+                        android:inputType="number"
+                        android:name="Grid Size"
+                        android:summary="Generate paths for a grid with this many nodes to a side"
+                        android:defaultValue="3"
+                        android:title="Grid Size"
+                        android:key="gridSizePref"
+                        />
+                </PreferenceCategory>
+            </PreferenceScreen>
+        </PreferenceCategory>
+</PreferenceScreen>

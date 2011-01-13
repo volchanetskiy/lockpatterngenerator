@@ -126,47 +126,65 @@ public class GenLockPattern extends Activity
     {
         /* path must implement java.util.Queue or else! */
         LinkedList<Integer> path = new LinkedList<Integer>();
+        LinkedList<Integer> opts = new LinkedList<Integer>();
         int numNodes = r.nextInt(maxNodes-minNodes+1)+minNodes, currentNum = 0, rise = 0, run = 0, gcd = 0, lastNum = 0;
+
+        for(int i = 0; i < gridSize*gridSize; i++)
+            opts.offer(new Integer(i));
 
         currentNum = r.nextInt(gridSize*gridSize);
         path.offer(new Integer(currentNum));
+        opts.remove(new Integer(currentNum));
         lastNum = currentNum;
-        Log.d("nodeSelection","Path anchored at node " + path.peek().intValue());
 
         for(int i = 1; i < numNodes; i++)
         {
+            if(opts.size() < 1)
+                break;
             do
             {
-                rise = r.nextInt(gridSize) - (lastNum / gridSize);
-                run = r.nextInt(gridSize) - (lastNum % gridSize);
-                Log.d("nodeSelection","rise: " + rise + " run: " + run);
+                currentNum = opts.get(r.nextInt(opts.size())).intValue();
+                rise = (currentNum / gridSize) - (lastNum / gridSize);
+                run = (currentNum % gridSize) - (lastNum % gridSize);
+                /* rise = r.nextInt(gridSize) - (lastNum / gridSize); */
+                /* run = r.nextInt(gridSize) - (lastNum % gridSize); */
 
                 gcd = Math.abs(computeGcd(rise, run));
-                Log.d("nodeSelection","gcd(" + rise + "," + run + "): " + gcd);
 
                 if(gcd != 0)
                 {
                     rise /= gcd;
                     run /= gcd;
-                    for(int j = 1;j < gcd; j++)
+                    for(int j = 1;j <= gcd; j++)
                     {
-                        if(!path.contains(lastNum + rise * j * 3 + run * j))
+                        System.out.println("rise: " + rise + " run: " + run + " gcd: " + gcd + " j: " + j);
+                        System.out.println("test for: " + new Integer (lastNum + rise * j * gridSize + run * j));
+                        if(!path.contains(new Integer (lastNum + rise * j * gridSize + run * j)))
                         {
+                            System.out.println("available!");
                             rise *= j;
                             run *= j;
+                            break;
                         }
                     }
                 }
-                Log.d("nodeSelection","newrise:" + rise + " newrun:" + run);
 
-                currentNum = lastNum + rise * 3 + run;
-                Log.d("nodeSelection","curNode:" + lastNum + " currentNum:" + currentNum);
+                currentNum = lastNum + rise * gridSize + run;
+
+                System.out.print("derp. optss:" + opts.size() + " cur:" + currentNum + " path: ");
+                for(Integer e : path)
+                    System.out.print(e.intValue() + " ");
+                System.out.print("opts: ");
+                for(Integer e : opts)
+                    System.out.print(e.intValue() + " ");
+                System.out.println();
 
             }while(path.contains(new Integer(currentNum)));
 
-            Log.d("nodeSelection","Adding node " + currentNum + " to position " + path.size() + " in path");
             path.offer(new Integer(currentNum));
+            opts.remove(new Integer(currentNum));
             lastNum = currentNum;
+
         }
 
         outputView.updatePath(path);

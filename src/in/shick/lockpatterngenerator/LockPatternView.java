@@ -139,7 +139,6 @@ public class LockPatternView extends View
         if(pathIterator.hasNext())
         {
             int e = pathIterator.next().intValue();
-            Log.d("updatePath","First node:" + e);
             if(highlightFirst)
                 outerCircles[e].getPaint().setColor(FIRST_SELECTED_COLOR);
             else
@@ -207,7 +206,6 @@ public class LockPatternView extends View
 
                 /* angle = Math.atan(1.0 * ((double) pointA.y - pointB.y) / ((double) pointA.x - pointB.x)); */
                 angle = Math.atan2(pointA.y-pointB.y,pointA.x-pointB.x);
-                /* System.out.println("ANGLE from (" + pointA.x + "," + pointA.y + ") to (" + pointB.x + "," + pointB.y + ") is " + angle); */
 
                 pointX = pointA.x-(float)(Math.cos(angle)*arrowPointRadius);
                 pointY = pointA.y-(float)(Math.sin(angle)*arrowPointRadius);

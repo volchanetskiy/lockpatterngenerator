@@ -107,7 +107,6 @@ public class LockPatternView extends View
 
         pathPaint.setStrokeWidth(innerDiameter);
 
-        /* this.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,w)); */
 
         for(int i = 0; i < gridSize; i++)
         {
@@ -204,7 +203,6 @@ public class LockPatternView extends View
             {
                 pointB = points.next();
 
-                /* angle = Math.atan(1.0 * ((double) pointA.y - pointB.y) / ((double) pointA.x - pointB.x)); */
                 angle = Math.atan2(pointA.y-pointB.y,pointA.x-pointB.x);
 
                 pointX = pointA.x-(float)(Math.cos(angle)*arrowPointRadius);
@@ -214,14 +212,10 @@ public class LockPatternView extends View
                 centerlineY = pointA.y-(float)(Math.sin(angle)*arrowBaseRadius);
 
                 arrow = new Path();
-                /* arrow.moveTo(pointA.x-(float)(Math.cos(angle)*arrowPointRadius),pointA.y-(float)(Math.sin(angle)*arrowPointRadius)); */
                 arrow.moveTo(pointX,pointY);
                 arrow.lineTo(centerlineX-(float)(arrowBaseHalfLength * Math.cos(angle + Math.PI/2)), centerlineY-(float)(arrowBaseHalfLength * Math.sin(angle + Math.PI/2)));
                 arrow.lineTo(centerlineX-(float)(arrowBaseHalfLength * Math.cos(angle - Math.PI/2)), centerlineY-(float)(arrowBaseHalfLength * Math.sin(angle - Math.PI/2)));
-                /* arrow.lineTo(pointA.x+middleDiameter,pointA.y); */
-                /* arrow.lineTo(pointA.x,pointA.y+middleDiameter); */
                 arrow.lineTo(pointX,pointY);
-                /* arrow.moveTo(pointA.x-(float)(Math.cos(angle)*arrowPointRadius),pointA.y-(float)(Math.sin(angle)*arrowPointRadius)); */
                 arrows.offer(arrow);
 
                 canvas.drawLine(pointA.x,pointA.y,pointB.x,pointB.y,pathPaint);

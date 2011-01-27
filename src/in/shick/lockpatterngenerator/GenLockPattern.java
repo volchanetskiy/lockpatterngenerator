@@ -1,6 +1,9 @@
 package in.shick.lockpatterngenerator;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -8,6 +11,8 @@ import android.widget.Button;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.util.Log;
 import android.preference.PreferenceManager;
 import java.util.LinkedList;
@@ -15,6 +20,7 @@ import java.util.Random;
 
 public class GenLockPattern extends Activity
 {
+    public static final int DIALOG_LARGEGRID_ID = 0;
     private LockPatternView outputView;
     private SharedPreferences generationPrefs;
     private Random r;
@@ -22,6 +28,7 @@ public class GenLockPattern extends Activity
     private int minNodes = 4;
     private int maxNodes = 6;
     private boolean highlightFirstNode = false;
+    private boolean allowArbitraryGridSize = false;
 
     /** Called when the activity is first created. */
     @Override
@@ -35,13 +42,7 @@ public class GenLockPattern extends Activity
 
         generationPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        gridSize = Integer.parseInt(generationPrefs.getString("gridSizePref","3").trim());
-        minNodes = Integer.parseInt(generationPrefs.getString("minLengthPref","4").trim());
-        maxNodes = Integer.parseInt(generationPrefs.getString("maxLengthPref","6").trim());
-        highlightFirstNode = generationPrefs.getBoolean("firstNodePref",false);
-
-        outputView.setGridSize(gridSize);
-        outputView.setHighlight(highlightFirstNode);
+        updateSettings();
 
         final Button generateButton = (Button) this.findViewById(R.id.generateButton);
         final Button settingsButton = (Button) this.findViewById(R.id.settingsButton);
@@ -66,12 +67,56 @@ public class GenLockPattern extends Activity
 
     public void updateSettings()
     {
-        int newGridSize = Integer.parseInt(generationPrefs.getString("gridSizePref","3").trim());
-        int newMinNodes = Integer.parseInt(generationPrefs.getString("minLengthPref","4").trim());
-        int newMaxNodes = Integer.parseInt(generationPrefs.getString("maxLengthPref","6").trim());
+        int newGridSize, newMinNodes,  newMaxNodes;
+        boolean clearPath = false;
 
         boolean newHighlightFirstNode = generationPrefs.getBoolean("firstNodePref",false);
+        boolean newAllowArbitraryGridSize = generationPrefs.getBoolean("arbitraryGridPref",false);
 
+        try
+        {
+            newGridSize = Integer.parseInt(generationPrefs.getString("gridSizePref","3").trim());
+        }catch(java.lang.NumberFormatException e)
+        {
+            newGridSize = 3;
+            generationPrefs.edit().putString("gridSizePref","3").commit();
+        }
+
+        try
+        {
+            newMinNodes = Integer.parseInt(generationPrefs.getString("minLengthPref","4").trim());
+        }catch(java.lang.NumberFormatException e)
+        {
+            newMinNodes = 4;
+            generationPrefs.edit().putString("minLengthPref","4").commit();
+        }
+
+        try
+        {
+            newMaxNodes = Integer.parseInt(generationPrefs.getString("maxLengthPref","6").trim());
+        }catch(java.lang.NumberFormatException e)
+        {
+            newMaxNodes = 6;
+            generationPrefs.edit().putString("maxLengthPref","6").commit();
+        }
+
+
+        allowArbitraryGridSize = newAllowArbitraryGridSize;
+        if(!allowArbitraryGridSize)
+        {
+            if(newGridSize > 8)
+            {
+                newGridSize = 8;
+                generationPrefs.edit().putString("gridSizePref","8").commit();
+            }
+        }
+
+
+        if(newGridSize < 1)
+        {
+            newGridSize = 1;
+            generationPrefs.edit().putString("gridSizePref","1").commit();
+        }
         if(newMinNodes < 1)
         {
             newMinNodes = 1;
@@ -101,17 +146,30 @@ public class GenLockPattern extends Activity
         }
 
         if(newGridSize != gridSize || newMinNodes != minNodes || newMaxNodes != maxNodes)
-            outputView.updatePath(new LinkedList<Integer>());
+            clearPath = true;
 
         highlightFirstNode = newHighlightFirstNode;
         gridSize = newGridSize;
         minNodes = newMinNodes;
         maxNodes = newMaxNodes;
 
-        outputView.setGridSize(gridSize);
-        outputView.setHighlight(highlightFirstNode);
+        try
+        {
+            outputView.setGridSize(gridSize);
+            outputView.setHighlight(highlightFirstNode);
 
-        outputView.updateDrawableNodes();
+            outputView.updateDrawableNodes();
+        }catch(Throwable e)
+        {
+            if(gridSize <= 3)
+                throw new java.lang.OutOfMemoryError();
+            generationPrefs.edit().putString("gridSizePref","3").commit();
+            showDialog(DIALOG_LARGEGRID_ID);
+            updateSettings();
+        }
+
+        if(clearPath)
+            outputView.updatePath(new LinkedList<Integer>());
     }
 
     public void onResume()
@@ -120,6 +178,30 @@ public class GenLockPattern extends Activity
         updateSettings();
         outputView.refreshPath();
         outputView.invalidate();
+    }
+
+    protected Dialog onCreateDialog(int id)
+    {
+        Dialog dialog = null;
+        switch(id)
+        {
+            case DIALOG_LARGEGRID_ID:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("The device ran out of memory trying to render " +
+                                   "the grid.  Try a smaller grid size.")
+                       .setTitle("You broke it.")
+                       .setCancelable(false)
+                       .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                           public void onClick(DialogInterface dialog, int id) {
+                               dialog.cancel();
+                           }
+                       });
+                dialog = builder.create();
+                break;
+            default:
+                dialog = null;
+        }
+        return dialog;
     }
 
     public void generateLockPattern()
@@ -146,8 +228,6 @@ public class GenLockPattern extends Activity
                 currentNum = opts.get(r.nextInt(opts.size())).intValue();
                 rise = (currentNum / gridSize) - (lastNum / gridSize);
                 run = (currentNum % gridSize) - (lastNum % gridSize);
-                /* rise = r.nextInt(gridSize) - (lastNum / gridSize); */
-                /* run = r.nextInt(gridSize) - (lastNum % gridSize); */
 
                 gcd = Math.abs(computeGcd(rise, run));
 
@@ -157,11 +237,8 @@ public class GenLockPattern extends Activity
                     run /= gcd;
                     for(int j = 1;j <= gcd; j++)
                     {
-                        System.out.println("rise: " + rise + " run: " + run + " gcd: " + gcd + " j: " + j);
-                        System.out.println("test for: " + new Integer (lastNum + rise * j * gridSize + run * j));
                         if(!path.contains(new Integer (lastNum + rise * j * gridSize + run * j)))
                         {
-                            System.out.println("available!");
                             rise *= j;
                             run *= j;
                             break;
@@ -170,14 +247,6 @@ public class GenLockPattern extends Activity
                 }
 
                 currentNum = lastNum + rise * gridSize + run;
-
-                System.out.print("derp. optss:" + opts.size() + " cur:" + currentNum + " path: ");
-                for(Integer e : path)
-                    System.out.print(e.intValue() + " ");
-                System.out.print("opts: ");
-                for(Integer e : opts)
-                    System.out.print(e.intValue() + " ");
-                System.out.println();
 
             }while(path.contains(new Integer(currentNum)));
 

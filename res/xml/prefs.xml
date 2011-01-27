@@ -21,7 +21,7 @@
         <PreferenceCategory android:title="Display">
             <CheckBoxPreference
                 android:title="Highlight First Node"
-                android:summary="Make the beginning of the generated path more noticable"
+                android:summary="Make the beginning of the generated path more noticeable"
                 android:defaultValue="false"
                 android:key="firstNodePref"
                 />
@@ -40,6 +40,12 @@
                         android:title="Grid Size"
                         android:key="gridSizePref"
                         />
+            <CheckBoxPreference
+                android:title="Allow Arbitrary Grid Size"
+                android:summary="DANGER: Large grids are unstable!"
+                android:defaultValue="false"
+                android:key="arbitraryGridPref"
+                />
                 </PreferenceCategory>
             </PreferenceScreen>
         </PreferenceCategory>

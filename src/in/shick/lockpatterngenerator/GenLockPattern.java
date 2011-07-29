@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -62,9 +63,7 @@ public class GenLockPattern extends Activity
         settingsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v)
             {
-                Intent walkIntoMordor = new Intent();
-                walkIntoMordor.setClassName("in.shick.lockpatterngenerator", "in.shick.lockpatterngenerator.PreferencesActivity");
-                startActivity(walkIntoMordor);
+                startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
             }
         });
     }
@@ -75,6 +74,26 @@ public class GenLockPattern extends Activity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.generate_activity, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        Intent intent = null;
+        switch (item.getItemId())
+        {
+            case R.id.menu_settings:
+                startActivity(new Intent().setClass(this, PreferencesActivity.class));
+                return true;
+            case R.id.menu_help:
+                startActivity(new Intent().setClass(this, HelpActivity.class));
+                return true;
+            case R.id.menu_about:
+                startActivity(new Intent().setClass(this, AboutActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public void updateSettings()

@@ -4,4 +4,7 @@
     <string name="settings_view_name">Generation Parameters</string>
     <string name="generate_button_label">Generate</string>
     <string name="settings_button_label">Settings</string>
+    <string name="settings">Settings</string>
+    <string name="help">Help</string>
+    <string name="about">About</string>
 </resources>

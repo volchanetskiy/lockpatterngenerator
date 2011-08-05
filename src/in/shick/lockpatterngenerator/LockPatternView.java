@@ -257,19 +257,17 @@ public class LockPatternView extends View
 
     protected void onSizeChanged(int w, int h, int oldw, int oldh)
     {
-        outerDiameter = (int) ((double)(w / gridSize) * OUTER_SIZE_RATIO);
+        outerDiameter = (int) ((double)(gridLength / gridSize) * OUTER_SIZE_RATIO);
         middleDiameter = (int) ((double)outerDiameter * MIDDLE_SIZE_RATIO);
         innerDiameter = (int) ((double)outerDiameter * INNER_SIZE_RATIO);
 
-        outerOffset = w / (gridSize*2) - outerDiameter/2;
-        middleOffset = w / (gridSize*2) - middleDiameter/2;
-        innerOffset = w / (gridSize*2) - innerDiameter/2;
+        outerOffset = gridLength / (gridSize*2) - outerDiameter/2;
+        middleOffset = gridLength / (gridSize*2) - middleDiameter/2;
+        innerOffset = gridLength / (gridSize*2) - innerDiameter/2;
 
         arrowPointRadius = (int) ((double)middleDiameter/2*0.9);
         arrowBaseRadius = (int) ((double)middleDiameter/2*0.6);
         arrowBaseHalfLength = (int) ((double)middleDiameter/2*0.3);
-
-        gridLength = w;
 
         updateDrawableNodes();
 
@@ -278,7 +276,18 @@ public class LockPatternView extends View
 
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
     {
-        int value = MeasureSpec.getSize(widthMeasureSpec);
+        int width = MeasureSpec.getSize(widthMeasureSpec); 
+        int height = MeasureSpec.getSize(heightMeasureSpec); 
+        int value = Math.min(width,height);
+        if(width == 0)
+        {
+            value = height;
+        }
+        else if(height == 0)
+        {
+            value = width;
+        }
+        gridLength = value;
         setMeasuredDimension(value,value);
     }
 

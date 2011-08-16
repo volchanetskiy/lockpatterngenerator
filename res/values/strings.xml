@@ -23,6 +23,7 @@ along with lockpatterngenerator.  If not, see <http://www.gnu.org/licenses/>.
     <string name="generate_button_label">Generate</string>
     <string name="settings_button_label">Android Security Settings</string>
     <string name="settings">Settings</string>
+    <string name="practice">Practice</string>
     <string name="help">Help</string>
     <string name="about">About</string>
 </resources>

@@ -18,21 +18,27 @@ along with lockpatterngenerator.  If not, see <http://www.gnu.org/licenses/>.
 */
 package in.shick.lockpatterngenerator;
 
-import android.graphics.drawable.shapes.*;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.Path;
 import android.content.Context;
-import android.view.View;
+import android.graphics.Canvas;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.*;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Point;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.*;
-import java.util.Queue;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Queue;
 
 public class LockPatternView extends View
 {
@@ -46,6 +52,11 @@ public class LockPatternView extends View
     public static final int MANTLE_COLOR = 0xff000000;
     public static final int CORE_COLOR = 0xffffffff;
     public static final int PATH_COLOR = 0xffcccccc;
+    public static final int INCORRECT_COLOR = 0xffdd1111;
+    public static final int CORRECT_COLOR = 0xff1111ff;
+
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private Handler handler;
 
     private ShapeDrawable outerCircles[], middleCircles[], innerCircles[];
     private Paint pathPaint, arrowPaint, firstArrowPaint;
@@ -54,7 +65,14 @@ public class LockPatternView extends View
     private LinkedList<Point> pathPoints;
     private LinkedList<Integer> pathOrder;
     private LinkedList<Path> arrows;
+    private Queue<Integer> normalPath;
+    private Queue<Integer> practicePath;
     private boolean highlightFirst;
+    private boolean practiceMode;
+    private int wildX, wildY;
+    private int activeColor;
+    private boolean showingResult;
+    private int displayDelay;
 
     private int outerDiameter;
     private int middleDiameter;
@@ -72,11 +90,23 @@ public class LockPatternView extends View
     {
         super(context, attributeSet);
 
+        handler = new Handler();
+        displayDelay = 1000;
+
         gridSize = 3;
         gridLength = 0;
 
         highlightFirst = false;
+        practiceMode = false;
+        showingResult = false;
 
+        wildX = -1;
+        wildY = -1;
+
+        activeColor = SELECTED_COLOR;
+
+        practicePath = new LinkedList<Integer>();
+        normalPath = new LinkedList<Integer>();
         pathOrder = new LinkedList<Integer>();
         pathPoints = new LinkedList<Point>();
 
@@ -88,10 +118,90 @@ public class LockPatternView extends View
         firstArrowPaint.setStyle(Paint.Style.FILL);
 
         arrowPaint = new Paint();
-        arrowPaint.setColor(SELECTED_COLOR);
+        arrowPaint.setColor(activeColor);
         arrowPaint.setStyle(Paint.Style.FILL);
 
         updateDrawableNodes();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event)
+    {
+        if(!practiceMode || showingResult)
+        {
+            System.out.println("BAD TOUCH");
+            return false;
+        }
+        switch(event.getAction())
+        {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_MOVE:
+                float x = event.getX(), y = event.getY();
+                wildX = (int) x;
+                wildY = (int) y;
+                int cell_length = gridLength/gridSize;
+                int xblock = (int) x / (cell_length);
+                if(xblock >= gridSize)
+                {
+                    xblock = gridSize - 1;
+                }
+                int yblock = (int) y / (cell_length);
+                if(yblock >= gridSize)
+                {
+                    yblock = gridSize - 1;
+                }
+                int locus_x = (int) ((((float) xblock) + 0.5) * cell_length);
+                int locus_y = (int) ((((float) yblock) + 0.5) * cell_length);
+                int locus_dist = (int) Math.sqrt(Math.pow(x - locus_x,2) + Math.pow(y - locus_y,2));
+                if(locus_dist <= middleDiameter/2)
+                {
+                    int nodeNum = (yblock * gridSize) + xblock;
+                    if(!practicePath.contains(nodeNum))
+                    {
+                        practicePath.offer(nodeNum);
+                        updatePath(practicePath);
+                        return true;
+                    }
+                }
+                invalidate();
+                break;
+            case MotionEvent.ACTION_UP:
+                wildX = -1;
+                wildY = -1;
+                if(practicePath.size() == 0)
+                {
+                    return true;
+                }
+                if(!practicePath.equals(normalPath))
+                {
+                    activeColor = INCORRECT_COLOR;
+                }
+                else
+                {
+                    activeColor = CORRECT_COLOR;
+                }
+                updatePath(practicePath);
+                showingResult = true;
+                scheduler.schedule(new Runnable() {
+                        public void run()
+                        {
+                            handler.post(new Runnable() {
+                                public void run() {
+                                    activeColor = SELECTED_COLOR;
+                                    showingResult = false;
+                                    practicePath = new LinkedList<Integer>();
+                                    updatePath(practicePath);
+                                }
+                            });
+                        }
+                    },
+                    displayDelay,
+                    TimeUnit.MILLISECONDS);
+                break;
+            default:
+                return false;
+        }
+        return true;
     }
 
     public void updateDrawableNodes()
@@ -124,6 +234,7 @@ public class LockPatternView extends View
 
 
         pathPaint.setStrokeWidth(innerDiameter);
+        pathPaint.setStrokeCap(Paint.Cap.ROUND);
 
 
         for(int i = 0; i < gridSize; i++)
@@ -144,11 +255,12 @@ public class LockPatternView extends View
         updatePath(pathOrder);
     }
 
-    public void updatePath(Queue<Integer> lockPattern)
+    private void updatePath(Queue<Integer> lockPattern)
     {
         pathOrder = new LinkedList<Integer>();
         pathPoints = new LinkedList<Point>();
         Iterator<Integer> pathIterator = lockPattern.iterator();
+        arrowPaint.setColor(activeColor);
 
         for(ShapeDrawable e : outerCircles)
             e.getPaint().setColor(UNSELECTED_COLOR);
@@ -156,17 +268,17 @@ public class LockPatternView extends View
         if(pathIterator.hasNext())
         {
             int e = pathIterator.next().intValue();
-            if(highlightFirst)
+            if(highlightFirst && !practiceMode)
                 outerCircles[e].getPaint().setColor(FIRST_SELECTED_COLOR);
             else
-                outerCircles[e].getPaint().setColor(SELECTED_COLOR);
+                outerCircles[e].getPaint().setColor(activeColor);
             pathOrder.offer(new Integer(e));
         }
 
         while(pathIterator.hasNext())
         {
             int e = pathIterator.next().intValue();
-            outerCircles[e].getPaint().setColor(SELECTED_COLOR);
+            outerCircles[e].getPaint().setColor(activeColor);
             pathOrder.offer(new Integer(e));
         }
 
@@ -174,18 +286,20 @@ public class LockPatternView extends View
         int startX = 0, startY = 0, endX = 0, endY = 0;
         pathIterator = lockPattern.iterator();
 
-        if(lockPattern.size() > 1)
+        if(lockPattern.size() > 0)
         {
             nodeA = pathIterator.next();
-            nodeB = pathIterator.next();
-
             startX = (nodeA%gridSize)*gridLength/gridSize + (gridLength / (gridSize*2));
             startY = (nodeA/gridSize)*gridLength/gridSize + (gridLength / (gridSize*2));
-            endX = (nodeB%gridSize)*gridLength/gridSize + (gridLength / (gridSize*2));
-            endY = (nodeB/gridSize)*gridLength/gridSize + (gridLength / (gridSize*2));
-
             pathPoints.offer(new Point(startX,startY));
-            pathPoints.offer(new Point(endX,endY));
+
+            if(pathIterator.hasNext())
+            {
+                nodeB = pathIterator.next();
+                endX = (nodeB%gridSize)*gridLength/gridSize + (gridLength / (gridSize*2));
+                endY = (nodeB/gridSize)*gridLength/gridSize + (gridLength / (gridSize*2));
+                pathPoints.offer(new Point(endX,endY));
+            }
 
             while(pathIterator.hasNext())
             {
@@ -237,6 +351,14 @@ public class LockPatternView extends View
                 arrows.offer(arrow);
 
                 canvas.drawLine(pointA.x,pointA.y,pointB.x,pointB.y,pathPaint);
+                if(!points.hasNext() && wildX >= 0 && wildY >= 0)
+                {
+                    canvas.drawLine(pointB.x,pointB.y,wildX,wildY,pathPaint);
+                }
+            }
+            else if(wildX >= 0 && wildY >= 0)
+            {
+                canvas.drawLine(pointA.x,pointA.y,wildX,wildY,pathPaint);
             }
         }
 
@@ -248,7 +370,7 @@ public class LockPatternView extends View
             e.draw(canvas);
         for(int i = 0; i < arrows.size(); i++)
         {
-            if(i == 0 && highlightFirst)
+            if(i == 0 && highlightFirst && !practiceMode)
                 canvas.drawPath(arrows.get(i),firstArrowPaint);
             else
                 canvas.drawPath(arrows.get(i),arrowPaint);
@@ -307,5 +429,30 @@ public class LockPatternView extends View
     public void setHighlight(boolean input)
     {
         highlightFirst = input;
+    }
+
+    public void setPracticeMode(boolean input)
+    {
+        practiceMode = input;
+        if(!practiceMode)
+        {
+            activeColor = SELECTED_COLOR;
+            updatePath(normalPath);
+            showingResult = false;
+            practicePath = new LinkedList<Integer>();
+        }
+        else
+        {
+            updatePath(practicePath);
+        }
+    }
+
+    public void setPath(Queue<Integer> path)
+    {
+        normalPath = path;
+        if(!practiceMode)
+        {
+            updatePath(normalPath);
+        }
     }
 }

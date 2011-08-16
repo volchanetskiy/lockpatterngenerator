@@ -1,3 +1,4 @@
+proguard.cfg
 build.properties
 build.xml
 local.properties

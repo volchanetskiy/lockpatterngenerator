@@ -39,7 +39,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 public class GenLockPattern extends Activity
 {
@@ -60,15 +62,17 @@ public class GenLockPattern extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        outputView = (LockPatternView) this.findViewById(R.id.patternOutputView);
+        outputView = (LockPatternView) findViewById(R.id.patternOutputView);
         r = new Random();
 
         generationPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         updateSettings();
 
-        final Button generateButton = (Button) this.findViewById(R.id.generateButton);
-        final Button settingsButton = (Button) this.findViewById(R.id.settingsButton);
+        final LockPatternView f_outputView = outputView;
+        final Button generateButton = (Button) findViewById(R.id.generateButton);
+        final Button settingsButton = (Button) findViewById(R.id.settingsButton);
+        final ToggleButton practiceToggle = (ToggleButton) findViewById(R.id.practiceToggle);
         final GenLockPattern toastAnchor = this;
 
         generateButton.setOnClickListener(new View.OnClickListener() {
@@ -82,6 +86,15 @@ public class GenLockPattern extends Activity
             public void onClick(View v)
             {
                 startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
+            }
+        });
+
+        practiceToggle.setOnCheckedChangeListener(new ToggleButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                generateButton.setEnabled(!isChecked);
+                f_outputView.setPracticeMode(isChecked);
+                f_outputView.invalidate();
             }
         });
     }
@@ -119,7 +132,7 @@ public class GenLockPattern extends Activity
         int newGridSize, newMinNodes,  newMaxNodes;
         boolean clearPath = false;
 
-        boolean newHighlightFirstNode = generationPrefs.getBoolean("firstNodePref",false);
+        boolean newHighlightFirstNode = generationPrefs.getBoolean("firstNodePref",true);
         boolean newAllowArbitraryGridSize = generationPrefs.getBoolean("arbitraryGridPref",false);
 
         try
@@ -142,11 +155,11 @@ public class GenLockPattern extends Activity
 
         try
         {
-            newMaxNodes = Integer.parseInt(generationPrefs.getString("maxLengthPref","6").trim());
+            newMaxNodes = Integer.parseInt(generationPrefs.getString("maxLengthPref","5").trim());
         }catch(java.lang.NumberFormatException e)
         {
             newMaxNodes = 6;
-            generationPrefs.edit().putString("maxLengthPref","6").commit();
+            generationPrefs.edit().putString("maxLengthPref","5").commit();
         }
 
 
@@ -218,7 +231,7 @@ public class GenLockPattern extends Activity
         }
 
         if(clearPath)
-            outputView.updatePath(new LinkedList<Integer>());
+            outputView.setPath(new LinkedList<Integer>());
     }
 
     public void onResume()
@@ -305,7 +318,7 @@ public class GenLockPattern extends Activity
 
         }
 
-        outputView.updatePath(path);
+        outputView.setPath(path);
         return;
     }
 

@@ -127,14 +127,17 @@ public class LockPatternView extends View
     @Override
     public boolean onTouchEvent(MotionEvent event)
     {
-        if(!practiceMode || showingResult)
+        if(!practiceMode)
         {
-            System.out.println("BAD TOUCH");
             return false;
         }
         switch(event.getAction())
         {
             case MotionEvent.ACTION_DOWN:
+                showingResult = false;
+                practicePath = new LinkedList<Integer>();
+                activeColor = SELECTED_COLOR;
+                updatePath(practicePath);
             case MotionEvent.ACTION_MOVE:
                 float x = event.getX(), y = event.getY();
                 wildX = (int) x;
@@ -187,10 +190,13 @@ public class LockPatternView extends View
                         {
                             handler.post(new Runnable() {
                                 public void run() {
-                                    activeColor = SELECTED_COLOR;
-                                    showingResult = false;
-                                    practicePath = new LinkedList<Integer>();
-                                    updatePath(practicePath);
+                                    if(showingResult)
+                                    {
+                                        activeColor = SELECTED_COLOR;
+                                        showingResult = false;
+                                        practicePath = new LinkedList<Integer>();
+                                        updatePath(practicePath);
+                                    }
                                 }
                             });
                         }

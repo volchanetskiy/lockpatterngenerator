@@ -37,9 +37,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ScrollView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -64,6 +66,16 @@ public class GenLockPattern extends Activity
 
         outputView = (LockPatternView) findViewById(R.id.patternOutputView);
         r = new Random();
+
+        View evil = findViewById(R.id.evilScrollView);
+        if(evil != null)
+        {
+            evil.setOnTouchListener(new View.OnTouchListener() {
+                public boolean onTouch(View v, MotionEvent event){
+                    return outputView.onTouchEvent(event);
+                }
+            });
+        }
 
         generationPrefs = PreferenceManager.getDefaultSharedPreferences(this);
 

@@ -97,7 +97,17 @@ public class GenLockPattern extends Activity
         settingsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v)
             {
-                startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
+                try
+                {
+                    startActivity(
+                        new Intent(Settings.ACTION_SECURITY_SETTINGS));
+                }
+                catch(android.content.ActivityNotFoundException e)
+                {
+                    Toast.makeText(GenLockPattern.this,
+                        getString(R.string.settings_shortcut_failure),
+                        Toast.LENGTH_LONG).show();
+                }
             }
         });
 

@@ -33,15 +33,10 @@ along with lockpatterngenerator.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:text="BODY"
             android:textSize="16sp"
+            android:textColorLink="#888888"
             />
         <ImageView 
-           android:src="@drawable/gpl"
-           android:layout_width="fill_parent"
-           android:layout_height="wrap_content"
-           android:padding="10dp"
-           />
-        <ImageView 
-           android:src="@drawable/cc"
+           android:src="@drawable/license_icon"
            android:layout_width="fill_parent"
            android:layout_height="wrap_content"
            android:padding="10dp"

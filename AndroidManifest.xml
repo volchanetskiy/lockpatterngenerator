@@ -19,8 +19,8 @@ along with lockpatterngenerator.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="in.shick.lockpatterngenerator"
-      android:versionCode="4"
-      android:versionName="1.5">
+      android:versionCode="5"
+      android:versionName="1.5.1">
       <uses-sdk android:minSdkVersion="4" />
       <application android:label="@string/app_name"
           android:icon="@drawable/icon">

@@ -18,13 +18,16 @@ You should have received a copy of the GNU General Public License
 along with lockpatterngenerator.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_settings"
-          android:icon="@android:drawable/ic_menu_preferences"
-          android:title="@string/settings" />
-    <item android:id="@+id/menu_help"
-          android:icon="@drawable/confused_andy"
-          android:title="@string/help" />
-    <item android:id="@+id/menu_about"
-          android:icon="@drawable/mfs_logo"
-          android:title="@string/about" />
+    <item
+        android:id="@+id/menu_settings"
+        android:icon="@drawable/menu_settings"
+        android:title="@string/settings"/>
+    <item
+        android:id="@+id/menu_help"
+        android:icon="@drawable/confused_andy"
+        android:title="@string/help"/>
+    <item
+        android:id="@+id/menu_about"
+        android:icon="@drawable/mfs_logo"
+        android:title="@string/about"/>
 </menu>

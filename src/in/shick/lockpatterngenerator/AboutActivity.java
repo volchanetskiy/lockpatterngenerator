@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
 
@@ -50,5 +51,8 @@ public class AboutActivity extends Activity
         }
 
         body.setText(Html.fromHtml(htmlString));
+        body.setMovementMethod(LinkMovementMethod.getInstance());
+        body.setClickable(false);
+        body.setLongClickable(false);
     }
 }

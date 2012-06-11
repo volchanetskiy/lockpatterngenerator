@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License
 along with lockpatterngenerator.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/evilScrollView"
+    android:id="@+id/scroll_view"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
@@ -28,7 +28,7 @@ along with lockpatterngenerator.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="fill_parent"
         >
         <in.shick.lockpatterngenerator.LockPatternView
-            android:id="@+id/patternOutputView"
+            android:id="@+id/pattern_view"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             />
@@ -39,7 +39,7 @@ along with lockpatterngenerator.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_gravity="center_vertical"
             >
             <Button 
-                android:id="@+id/generateButton"
+                android:id="@+id/generate_button"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/generate_button_label"
@@ -54,13 +54,13 @@ along with lockpatterngenerator.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="wrap_content"
                 >
                 <Button 
-                    android:id="@+id/settingsButton"
+                    android:id="@+id/security_settings_button"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/settings_button_label"
                     />
                 <ToggleButton
-                    android:id="@+id/practiceToggle"
+                    android:id="@+id/practice_toggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"

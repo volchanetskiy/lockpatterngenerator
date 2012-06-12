@@ -19,31 +19,10 @@ You should have received a copy of the GNU General Public License along with
 package in.shick.lockpatterngenerator;
 
 import android.graphics.Point;
-import android.os.Bundle;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class GeneratorActivity extends BaseActivity implements PatternProvider
+public interface PatternProvider
 {
-    protected LockPatternView mPatternView;
-
-    public void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-
-        // find views
-        setContentView(R.layout.generator_activity);
-        mPatternView = (LockPatternView) findViewById(R.id.pattern_view);
-
-        // set up views
-        mPatternView.setPatternProvider(this);
-    }
-
-    // provide current pattern to classes (LockPatternView)
-    @Override
-    public List<Point> providePattern()
-    {
-        return new ArrayList<Point>();
-    }
+    public List<Point> providePattern();
 }

@@ -24,11 +24,6 @@ import android.view.View;
 
 public class LockPatternView extends View
 {
-    public LockPatternView(Context context)
-    {
-        this(context, null);
-    }
-
     public LockPatternView(Context context, AttributeSet attrs)
     {
         super(context, attrs);

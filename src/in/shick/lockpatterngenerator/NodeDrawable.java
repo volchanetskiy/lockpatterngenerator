@@ -35,8 +35,7 @@ public class NodeDrawable extends Drawable
     public static final int PART_COUNT = 3;
     public static final int PART_OUTER = 0, PART_MIDDLE = 1, PART_INNER = 2;
     public static final float[] PART_RATIOS = {
-        1.0f, 0.9f, 0.297f
-        //0.75f, 0.90f, 0.33f
+        1.0f, 0.9f, 0.33f
     };
     public static final int[] DEFAULT_PART_COLORS = {
         DEFAULT_STATE_COLORS[STATE_UNSELECTED], 0xff000000, 0xffffffff

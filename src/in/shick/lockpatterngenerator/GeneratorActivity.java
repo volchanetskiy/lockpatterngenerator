@@ -30,10 +30,17 @@ public class GeneratorActivity extends BaseActivity
 {
     protected LockPatternView mPatternView;
     protected Button mGenerateButton;
+    protected PatternGenerator mGenerator;
+    protected int mGridLength;
+    protected int mPatternMin;
+    protected int mPatternMax;
 
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        // non-UI setup
+        mGenerator = new PatternGenerator();
 
         // find views
         setContentView(R.layout.generator_activity);
@@ -44,15 +51,83 @@ public class GeneratorActivity extends BaseActivity
         mGenerateButton.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: remove
-                ArrayList<Point> testPattern = new ArrayList<Point>();
-                testPattern.add(new Point(0,1));
-                testPattern.add(new Point(1,2));
-                testPattern.add(new Point(2,1));
-                testPattern.add(new Point(1,0));
-                mPatternView.setPattern(testPattern);
+                mPatternView.setPattern(mGenerator.getPattern());
                 mPatternView.invalidate();
             }
         });
+    }
+
+    protected void onResume()
+    {
+        super.onResume();
+        
+        updateFromPrefs();
+    }
+
+    private void updateFromPrefs()
+    {
+        int gridLength =
+            mPreferences.getInt("grid_length", Defaults.GRID_LENGTH);
+        int patternMin =
+            mPreferences.getInt("pattern_min", Defaults.PATTERN_MIN);
+        int patternMax =
+            mPreferences.getInt("pattern_max", Defaults.PATTERN_MAX);
+
+        // sanity checking
+        if(gridLength < 1)
+        {
+            gridLength = 1;
+        }
+        if(patternMin < 1)
+        {
+            patternMin = 1;
+        }
+        if(patternMax < 1)
+        {
+            patternMax = 1;
+        }
+        int nodeCount = (int) Math.pow(gridLength, 2);
+        if(patternMin > nodeCount)
+        {
+            patternMin = nodeCount;
+        }
+        if(patternMax > nodeCount)
+        {
+            patternMax = nodeCount;
+        }
+        if(patternMin > patternMax)
+        {
+            patternMin = patternMax;
+        }
+
+        // only update values that differ
+        if(gridLength != mGridLength)
+        {
+            setGridLength(gridLength);
+        }
+        if(patternMax != mPatternMax)
+        {
+            setPatternMax(patternMax);
+        }
+        if(patternMin != mPatternMin)
+        {
+            setPatternMin(patternMin);
+        }
+    }
+
+    private void setGridLength(int length)
+    {
+        mGenerator.setGridLength(length);
+        mPatternView.setGridLength(length);
+    }
+    private void setPatternMin(int nodes)
+    {
+        mPatternMin = nodes;
+        mGenerator.setMinNodes(nodes);
+    }
+    private void setPatternMax(int nodes)
+    {
+        mPatternMax = nodes;
+        mGenerator.setMaxNodes(nodes);
     }
 }

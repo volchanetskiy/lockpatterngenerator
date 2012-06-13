@@ -167,34 +167,26 @@ public class LockPatternView extends View
         // clear old pattern from nodes
         for(Point e : mCurrentPattern)
         {
-            if(e.x >= 0 && e.x < mLengthNodes
-                    && e.y >= 0 && e.y < mLengthNodes)
-            {
-                mNodeDrawables[e.x][e.y]
-                    .setNodeState(NodeDrawable.STATE_UNSELECTED);
-            }
+            mNodeDrawables[e.x][e.y]
+                .setNodeState(NodeDrawable.STATE_UNSELECTED);
         }
         // load new pattern into nodes
         for(int ii = 0; ii < pattern.size(); ii++)
         {
             Point e = pattern.get(ii);
-            if(e.x >= 0 && e.x < mLengthNodes
-                    && e.y >= 0 && e.y < mLengthNodes)
+            mNodeDrawables[e.x][e.y]
+                .setNodeState(NodeDrawable.STATE_SELECTED);
+            // if another node follows, then tell the current node which way
+            // to point
+            if(ii < pattern.size() - 1)
             {
-                mNodeDrawables[e.x][e.y]
-                    .setNodeState(NodeDrawable.STATE_SELECTED);
-                // if another node follows, then tell the current node which way
-                // to point
-                if(ii < pattern.size() - 1)
-                {
-                    Point f = pattern.get(ii+1);
-                    Point centerE = mNodeDrawables[e.x][e.y].getCenter();
-                    Point centerF = mNodeDrawables[f.x][f.y].getCenter();
+                Point f = pattern.get(ii+1);
+                Point centerE = mNodeDrawables[e.x][e.y].getCenter();
+                Point centerF = mNodeDrawables[f.x][f.y].getCenter();
 
-                    mNodeDrawables[e.x][e.y].setExitAngle((float)
-                            Math.atan2(centerE.y - centerF.y,
-                                centerE.x - centerF.x));
-                }
+                mNodeDrawables[e.x][e.y].setExitAngle((float)
+                        Math.atan2(centerE.y - centerF.y,
+                            centerE.x - centerF.x));
             }
         }
 
@@ -203,6 +195,17 @@ public class LockPatternView extends View
     public List<Point> getPattern()
     {
         return mCurrentPattern;
+    }
+
+    public void setGridLength(int length)
+    {
+        mLengthNodes = length;
+        mCurrentPattern = Collections.emptyList();
+        buildDrawables();
+    }
+    public int getGridLength()
+    {
+        return mLengthNodes;
     }
 
     //

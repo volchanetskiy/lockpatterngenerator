@@ -34,16 +34,17 @@ public class NodeDrawable extends Drawable
         0xff999999, 0xff00cc00, 0xff00cccc, 0xff1111ff, 0xffdd1111
     };
 
-    public static final int PART_COUNT = 3;
-    public static final int PART_OUTER = 0, PART_MIDDLE = 1, PART_INNER = 2;
-    public static final float[] PART_RATIOS = {
+    public static final int CIRCLE_COUNT = 3;
+    public static final int CIRCLE_OUTER = 0, CIRCLE_MIDDLE = 1,
+           CIRCLE_INNER = 2;
+    public static final float[] CIRCLE_RATIOS = {
         1.0f, 0.9f, 0.33f
     };
-    public static final int[] DEFAULT_PART_COLORS = {
+    public static final int[] DEFAULT_CIRCLE_COLORS = {
         DEFAULT_STATE_COLORS[STATE_UNSELECTED], 0xff000000, 0xffffffff
     };
-    public static final int[] PART_ORDER = {
-        PART_OUTER, PART_MIDDLE, PART_INNER
+    public static final int[] CIRCLE_ORDER = {
+        CIRCLE_OUTER, CIRCLE_MIDDLE, CIRCLE_INNER
     };
 
     // For drawing an arrow exit indicator
@@ -59,7 +60,7 @@ public class NodeDrawable extends Drawable
 
     public NodeDrawable(float diameter, Point center)
     {
-        mCircles = new ShapeDrawable[PART_COUNT];
+        mCircles = new ShapeDrawable[CIRCLE_COUNT];
         mCenter = center;
         mDiameter = diameter;
         mState = STATE_UNSELECTED;
@@ -74,9 +75,9 @@ public class NodeDrawable extends Drawable
     @Override
     public void draw(Canvas canvas)
     {
-        for(int ii = 0; ii < PART_COUNT; ii++)
+        for(int ii = 0; ii < CIRCLE_COUNT; ii++)
         {
-            mCircles[PART_ORDER[ii]].draw(canvas);
+            mCircles[CIRCLE_ORDER[ii]].draw(canvas);
         }
         if(!Float.isNaN(mExitAngle))
         {
@@ -86,12 +87,12 @@ public class NodeDrawable extends Drawable
 
     private void buildShapes(float outerDiameter, Point center)
     {
-        for(int ii = 0; ii < PART_COUNT; ii++)
+        for(int ii = 0; ii < CIRCLE_COUNT; ii++)
         {
             mCircles[ii] = new ShapeDrawable(new OvalShape());
-            mCircles[ii].getPaint().setColor(DEFAULT_PART_COLORS[ii]);
+            mCircles[ii].getPaint().setColor(DEFAULT_CIRCLE_COLORS[ii]);
 
-            float diameter = outerDiameter * PART_RATIOS[ii];
+            float diameter = outerDiameter * CIRCLE_RATIOS[ii];
             int offset = (int) (diameter / 2.0f);
 
             mCircles[ii].setBounds(center.x - offset, center.y - offset,
@@ -99,7 +100,7 @@ public class NodeDrawable extends Drawable
         }
 
         // crunch variables for exit arrows independent of angle
-        float middleDiameter = outerDiameter * PART_RATIOS[PART_MIDDLE];
+        float middleDiameter = outerDiameter * CIRCLE_RATIOS[CIRCLE_MIDDLE];
 
         mArrowTipRad = middleDiameter / 2.0f * 0.9f;
         mArrowBaseRad = middleDiameter / 2.0f * 0.6f;
@@ -112,7 +113,7 @@ public class NodeDrawable extends Drawable
 
     public void setNodeState(int state)
     {
-        mCircles[PART_OUTER].getPaint().setColor(DEFAULT_STATE_COLORS[state]);
+        mCircles[CIRCLE_OUTER].getPaint().setColor(DEFAULT_STATE_COLORS[state]);
         mExitPaint.setColor(DEFAULT_STATE_COLORS[state]);
         if(state == STATE_UNSELECTED)
         {
@@ -177,13 +178,13 @@ public class NodeDrawable extends Drawable
     @Override
     public int getOpacity()
     {
-        return mCircles[PART_OUTER].getOpacity();
+        return mCircles[CIRCLE_OUTER].getOpacity();
     }
 
     @Override
     public void setAlpha(int alpha)
     {
-        for(int ii = 0; ii < PART_COUNT; ii++)
+        for(int ii = 0; ii < CIRCLE_COUNT; ii++)
         {
             mCircles[ii].setAlpha(alpha);
         }
@@ -192,7 +193,7 @@ public class NodeDrawable extends Drawable
     @Override
     public void setColorFilter(android.graphics.ColorFilter cf)
     {
-        for(int ii = 0; ii < PART_COUNT; ii++)
+        for(int ii = 0; ii < CIRCLE_COUNT; ii++)
         {
             mCircles[ii].setColorFilter(cf);
         }

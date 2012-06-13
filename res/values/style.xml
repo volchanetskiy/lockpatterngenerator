@@ -1,4 +1,5 @@
-/*
+<?xml version="1.0" encoding="utf-8"?>
+<!--
 Copyright 2010-2012 Michael Shick
 
 This file is part of 'Lock Pattern Generator'.
@@ -15,14 +16,9 @@ details.
 
 You should have received a copy of the GNU General Public License along with
 'Lock Pattern Generator'.  If not, see <http://www.gnu.org/licenses/>.
-*/
-package in.shick.lockpatterngenerator;
-
-import android.graphics.Point;
-
-import java.util.List;
-
-public interface PatternProvider
-{
-    public List<Point> providePattern();
-}
+-->
+<resources>
+    <style name="application_theme" parent="android:Theme">
+        <item name="android:windowBackground">@drawable/black_background</item>
+    </style>
+</resources>

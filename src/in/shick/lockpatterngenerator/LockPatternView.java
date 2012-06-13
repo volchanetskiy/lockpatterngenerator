@@ -21,20 +21,28 @@ package in.shick.lockpatterngenerator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.AttributeSet;
 import android.view.View;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 public class LockPatternView extends View
 {
     public static final int DEFAULT_LENGTH_PX = 100, DEFAULT_LENGTH_NODES = 3;
-    public static final float CELL_NODE_RATIO = 0.75f;
+    public static final float CELL_NODE_RATIO = 0.75f, NODE_EDGE_RATIO = 0.33f;
+    public static final int EDGE_COLOR = 0xffcccccc;
 
-    protected PatternProvider mPatternProvider;
     protected int mLengthPx;
     protected int mLengthNodes;
     protected int mCellLength;
-    protected Drawable[][] mNodeDrawables;
+    protected NodeDrawable[][] mNodeDrawables;
+    protected Paint mEdgePaint;
+
+    protected List<Point> mCurrentPattern;
 
     public LockPatternView(Context context, AttributeSet attrs)
     {
@@ -42,15 +50,21 @@ public class LockPatternView extends View
 
         mLengthPx = DEFAULT_LENGTH_PX;
         mLengthNodes = DEFAULT_LENGTH_NODES;
-        mNodeDrawables = new Drawable[0][0];
+        mNodeDrawables = new NodeDrawable[0][0];
+        mCurrentPattern = Collections.emptyList();
+
+        mEdgePaint = new Paint();
+        mEdgePaint.setColor(EDGE_COLOR);
+        mEdgePaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
     // prep to save time in onDraw calls
     private void buildDrawables()
     {
-        mNodeDrawables = new Drawable[mLengthNodes][mLengthNodes];
+        mNodeDrawables = new NodeDrawable[mLengthNodes][mLengthNodes];
 
         float nodeDiameter = ((float) mCellLength) * CELL_NODE_RATIO;
+        mEdgePaint.setStrokeWidth(nodeDiameter * NODE_EDGE_RATIO);
         int cellHalf = mCellLength / 2;
 
         for(int y = 0; y < mLengthNodes; y++)
@@ -78,6 +92,23 @@ public class LockPatternView extends View
     @Override
     protected void onDraw(Canvas canvas)
     {
+        Point edgeStart, edgeEnd;
+        CenterIterator patternPx =
+            new CenterIterator(mCurrentPattern.iterator());
+
+        if(patternPx.hasNext())
+        {
+            edgeStart = patternPx.next();
+            while(patternPx.hasNext())
+            {
+                edgeEnd = patternPx.next();
+                canvas.drawLine(edgeStart.x, edgeStart.y, edgeEnd.x, edgeEnd.y,
+                        mEdgePaint);
+
+                edgeStart = edgeEnd;
+            }
+        }
+
         for(int y = 0; y < mLengthNodes; y++)
         {
             for(int x = 0; x < mLengthNodes; x++)
@@ -134,12 +165,55 @@ public class LockPatternView extends View
     // Accessors / Mutators
     //
 
-    public PatternProvider getPatternProvider()
+    public void setPattern(List<Point> pattern)
     {
-        return mPatternProvider;
+        // clear old pattern from nodes
+        for(Point e : mCurrentPattern)
+        {
+            mNodeDrawables[e.x][e.y]
+                .setNodeState(NodeDrawable.STATE_UNSELECTED);
+        }
+        // load new pattern into nodes
+        for(int ii = 0; ii < pattern.size(); ii++)
+        {
+            Point e = pattern.get(ii);
+            mNodeDrawables[e.x][e.y].setNodeState(NodeDrawable.STATE_SELECTED);
+        }
+
+        mCurrentPattern = pattern;
     }
-    public void setPatternProvider(PatternProvider provider)
+    public List<Point> getPattern()
     {
-        mPatternProvider = provider;
+        return mCurrentPattern;
+    }
+
+    //
+    // Inner classes
+    //
+
+    private class CenterIterator implements Iterator<Point>
+    {
+        private Iterator<Point> nodeIterator;
+
+        public CenterIterator(Iterator<Point> iterator)
+        {
+            nodeIterator = iterator;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return nodeIterator.hasNext();
+        }
+
+        @Override
+        public Point next() {
+            Point node = nodeIterator.next();
+            return mNodeDrawables[node.x][node.y].getCenter();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
     }
 }

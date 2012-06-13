@@ -20,13 +20,16 @@ package in.shick.lockpatterngenerator;
 
 import android.graphics.Point;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class GeneratorActivity extends BaseActivity implements PatternProvider
+public class GeneratorActivity extends BaseActivity
 {
     protected LockPatternView mPatternView;
+    protected Button mGenerateButton;
 
     public void onCreate(Bundle savedInstanceState)
     {
@@ -35,15 +38,21 @@ public class GeneratorActivity extends BaseActivity implements PatternProvider
         // find views
         setContentView(R.layout.generator_activity);
         mPatternView = (LockPatternView) findViewById(R.id.pattern_view);
+        mGenerateButton = (Button) findViewById(R.id.generate_button);
 
         // set up views
-        mPatternView.setPatternProvider(this);
-    }
-
-    // provide current pattern to classes (LockPatternView)
-    @Override
-    public List<Point> providePattern()
-    {
-        return new ArrayList<Point>();
+        mGenerateButton.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO: remove
+                ArrayList<Point> testPattern = new ArrayList<Point>();
+                testPattern.add(new Point(0,1));
+                testPattern.add(new Point(1,2));
+                testPattern.add(new Point(2,1));
+                testPattern.add(new Point(1,0));
+                mPatternView.setPattern(testPattern);
+                mPatternView.invalidate();
+            }
+        });
     }
 }

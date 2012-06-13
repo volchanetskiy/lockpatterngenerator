@@ -48,12 +48,14 @@ public class NodeDrawable extends Drawable
     protected float mExitAngle;
     protected Point mCenter;
     protected float mDiameter;
+    protected int mState;
 
     public NodeDrawable(float diameter, Point center)
     {
         mShapes = new ShapeDrawable[PART_COUNT];
         mCenter = center;
         mDiameter = diameter;
+        mState = STATE_UNSELECTED;
 
         buildShapes(diameter, center);
     }
@@ -80,6 +82,25 @@ public class NodeDrawable extends Drawable
             mShapes[ii].setBounds(center.x - offset, center.y - offset,
                     center.x + offset, center.y + offset);
         }
+    }
+
+    //
+    // Accessors / mutators
+    //
+
+    public void setNodeState(int state)
+    {
+        mState = state;
+        mShapes[PART_OUTER].getPaint().setColor(DEFAULT_STATE_COLORS[state]);
+    }
+    public int getNodeState()
+    {
+        return mState;
+    }
+
+    public Point getCenter()
+    {
+        return mCenter;
     }
 
     //

@@ -22,6 +22,8 @@ import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Point;
 
 public class NodeDrawable extends Drawable
@@ -44,7 +46,12 @@ public class NodeDrawable extends Drawable
         PART_OUTER, PART_MIDDLE, PART_INNER
     };
 
-    protected ShapeDrawable mShapes[];
+    // For drawing an arrow exit indicator
+    protected float mArrowTipRad, mArrowBaseRad, mArrowHalfBase;
+
+    protected ShapeDrawable mCircles[];
+    protected Paint mExitPaint;
+    protected Path mExitIndicator;
     protected float mExitAngle;
     protected Point mCenter;
     protected float mDiameter;
@@ -52,10 +59,14 @@ public class NodeDrawable extends Drawable
 
     public NodeDrawable(float diameter, Point center)
     {
-        mShapes = new ShapeDrawable[PART_COUNT];
+        mCircles = new ShapeDrawable[PART_COUNT];
         mCenter = center;
         mDiameter = diameter;
         mState = STATE_UNSELECTED;
+        mExitAngle = Float.NaN;
+
+        mExitPaint = new Paint();
+        mExitPaint.setStyle(Paint.Style.FILL);
 
         buildShapes(diameter, center);
     }
@@ -65,7 +76,11 @@ public class NodeDrawable extends Drawable
     {
         for(int ii = 0; ii < PART_COUNT; ii++)
         {
-            mShapes[PART_ORDER[ii]].draw(canvas);
+            mCircles[PART_ORDER[ii]].draw(canvas);
+        }
+        if(!Float.isNaN(mExitAngle))
+        {
+            canvas.drawPath(mExitIndicator, mExitPaint);
         }
     }
 
@@ -73,15 +88,22 @@ public class NodeDrawable extends Drawable
     {
         for(int ii = 0; ii < PART_COUNT; ii++)
         {
-            mShapes[ii] = new ShapeDrawable(new OvalShape());
-            mShapes[ii].getPaint().setColor(DEFAULT_PART_COLORS[ii]);
+            mCircles[ii] = new ShapeDrawable(new OvalShape());
+            mCircles[ii].getPaint().setColor(DEFAULT_PART_COLORS[ii]);
 
             float diameter = outerDiameter * PART_RATIOS[ii];
             int offset = (int) (diameter / 2.0f);
 
-            mShapes[ii].setBounds(center.x - offset, center.y - offset,
+            mCircles[ii].setBounds(center.x - offset, center.y - offset,
                     center.x + offset, center.y + offset);
         }
+
+        // crunch variables for exit arrows independent of angle
+        float middleDiameter = outerDiameter * PART_RATIOS[PART_MIDDLE];
+
+        mArrowTipRad = middleDiameter / 2.0f * 0.9f;
+        mArrowBaseRad = middleDiameter / 2.0f * 0.6f;
+        mArrowHalfBase = middleDiameter / 2.0f * 0.3f;
     }
 
     //
@@ -90,12 +112,56 @@ public class NodeDrawable extends Drawable
 
     public void setNodeState(int state)
     {
+        mCircles[PART_OUTER].getPaint().setColor(DEFAULT_STATE_COLORS[state]);
+        mExitPaint.setColor(DEFAULT_STATE_COLORS[state]);
+        if(state == STATE_UNSELECTED)
+        {
+            setExitAngle(Float.NaN);
+        }
         mState = state;
-        mShapes[PART_OUTER].getPaint().setColor(DEFAULT_STATE_COLORS[state]);
     }
     public int getNodeState()
     {
         return mState;
+    }
+
+    public void setExitAngle(float angle)
+    {
+        // construct exit indicator arrow
+        if(!Float.isNaN(angle))
+        {
+            float tipX = mCenter.x - ((float) Math.cos(angle)) * mArrowTipRad;
+            float tipY = mCenter.y - ((float) Math.sin(angle)) * mArrowTipRad;
+
+            float baseCenterX = mCenter.x
+                - ((float) Math.cos(angle)) * mArrowBaseRad;
+            float baseCenterY = mCenter.y
+                - ((float) Math.sin(angle)) * mArrowBaseRad;
+
+            // first base vertex of arrow
+            float baseVertAX = baseCenterX
+                - mArrowHalfBase * ((float) Math.cos(angle + Math.PI / 2));
+            float baseVertAY = baseCenterY
+                - mArrowHalfBase * ((float) Math.sin(angle + Math.PI / 2));
+            // second base vertex of arrow
+            float baseVertBX = baseCenterX
+                - mArrowHalfBase * ((float) Math.cos(angle - Math.PI / 2));
+            float baseVertBY = baseCenterY
+                - mArrowHalfBase * ((float) Math.sin(angle - Math.PI / 2));
+
+            Path arrow = new Path();
+            arrow.moveTo(tipX, tipY);
+            arrow.lineTo(baseVertAX, baseVertAY);
+            arrow.lineTo(baseVertBX, baseVertBY);
+            arrow.lineTo(tipX, tipY);
+
+            mExitIndicator = arrow;
+        }
+        mExitAngle = angle;
+    }
+    public float getExitAngle()
+    {
+        return mExitAngle;
     }
 
     public Point getCenter()
@@ -111,7 +177,7 @@ public class NodeDrawable extends Drawable
     @Override
     public int getOpacity()
     {
-        return mShapes[PART_OUTER].getOpacity();
+        return mCircles[PART_OUTER].getOpacity();
     }
 
     @Override
@@ -119,7 +185,7 @@ public class NodeDrawable extends Drawable
     {
         for(int ii = 0; ii < PART_COUNT; ii++)
         {
-            mShapes[ii].setAlpha(alpha);
+            mCircles[ii].setAlpha(alpha);
         }
     }
 
@@ -128,7 +194,7 @@ public class NodeDrawable extends Drawable
     {
         for(int ii = 0; ii < PART_COUNT; ii++)
         {
-            mShapes[ii].setColorFilter(cf);
+            mCircles[ii].setColorFilter(cf);
         }
     }
 }

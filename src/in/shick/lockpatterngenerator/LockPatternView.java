@@ -58,10 +58,13 @@ public class LockPatternView extends View
         mEdgePaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
-    // prep to save time in onDraw calls
+    // called whenever either the actual drawn length or the nodewise length
+    // changes
     private void buildDrawables()
     {
         mNodeDrawables = new NodeDrawable[mLengthNodes][mLengthNodes];
+
+        mCellLength = mLengthPx / mLengthNodes;
 
         float nodeDiameter = ((float) mCellLength) * CELL_NODE_RATIO;
         mEdgePaint.setStrokeWidth(nodeDiameter * NODE_EDGE_RATIO);
@@ -78,13 +81,6 @@ public class LockPatternView extends View
         }
     }
 
-    // called whenever either the actual drawn length or the nodewise length
-    // changes
-    private void crunchCellLength()
-    {
-        mCellLength = mLengthPx / mLengthNodes;
-    }
-
     //
     // android.view.View overrides
     //
@@ -92,6 +88,7 @@ public class LockPatternView extends View
     @Override
     protected void onDraw(Canvas canvas)
     {
+        // draw pattern edges first
         Point edgeStart, edgeEnd;
         CenterIterator patternPx =
             new CenterIterator(mCurrentPattern.iterator());
@@ -109,6 +106,7 @@ public class LockPatternView extends View
             }
         }
 
+        // then draw nodes
         for(int y = 0; y < mLengthNodes; y++)
         {
             for(int x = 0; x < mLengthNodes; x++)
@@ -157,7 +155,6 @@ public class LockPatternView extends View
     protected void onSizeChanged(int w, int h, int oldw, int oldh)
     {
         mLengthPx = Math.min(w,h);
-        crunchCellLength();
         buildDrawables();
     }
 
@@ -170,14 +167,35 @@ public class LockPatternView extends View
         // clear old pattern from nodes
         for(Point e : mCurrentPattern)
         {
-            mNodeDrawables[e.x][e.y]
-                .setNodeState(NodeDrawable.STATE_UNSELECTED);
+            if(e.x >= 0 && e.x < mLengthNodes
+                    && e.y >= 0 && e.y < mLengthNodes)
+            {
+                mNodeDrawables[e.x][e.y]
+                    .setNodeState(NodeDrawable.STATE_UNSELECTED);
+            }
         }
         // load new pattern into nodes
         for(int ii = 0; ii < pattern.size(); ii++)
         {
             Point e = pattern.get(ii);
-            mNodeDrawables[e.x][e.y].setNodeState(NodeDrawable.STATE_SELECTED);
+            if(e.x >= 0 && e.x < mLengthNodes
+                    && e.y >= 0 && e.y < mLengthNodes)
+            {
+                mNodeDrawables[e.x][e.y]
+                    .setNodeState(NodeDrawable.STATE_SELECTED);
+                // if another node follows, then tell the current node which way
+                // to point
+                if(ii < pattern.size() - 1)
+                {
+                    Point f = pattern.get(ii+1);
+                    Point centerE = mNodeDrawables[e.x][e.y].getCenter();
+                    Point centerF = mNodeDrawables[f.x][f.y].getCenter();
+
+                    mNodeDrawables[e.x][e.y].setExitAngle((float)
+                            Math.atan2(centerE.y - centerF.y,
+                                centerE.x - centerF.x));
+                }
+            }
         }
 
         mCurrentPattern = pattern;

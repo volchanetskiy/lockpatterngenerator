@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -40,6 +41,7 @@ public class LockPatternView extends View
     public static final int DEFAULT_LENGTH_PX = 100, DEFAULT_LENGTH_NODES = 3;
     public static final float CELL_NODE_RATIO = 0.75f, NODE_EDGE_RATIO = 0.33f;
     public static final int EDGE_COLOR = 0xffcccccc;
+    public static final int PRACTICE_RESULT_DISPLAY_MILLIS = 1 * 1000;
 
     protected int mLengthPx;
     protected int mLengthNodes;
@@ -52,6 +54,10 @@ public class LockPatternView extends View
     protected Point mTouchCell;
     protected boolean mDrawTouchExtension;
     protected int mTouchThreshold;
+    protected boolean mDisplayingPracticeResult;
+    protected HighlightMode mPracticeFailureMode;
+    protected HighlightMode mPracticeSuccessMode;
+    protected Handler mHandler;
 
     protected List<Point> mCurrentPattern;
     protected List<Point> mPracticePattern;
@@ -69,6 +75,10 @@ public class LockPatternView extends View
         mTouchPoint = new Point(-1, -1);
         mTouchCell = new Point(-1, -1);
         mDrawTouchExtension = false;
+        mDisplayingPracticeResult = false;
+        mPracticeFailureMode = new FailureHighlight();
+        mPracticeSuccessMode = new SuccessHighlight();
+        mHandler = new Handler();
 
         mEdgePaint = new Paint();
         mEdgePaint.setColor(EDGE_COLOR);
@@ -107,13 +117,13 @@ public class LockPatternView extends View
                 .setNodeState(NodeDrawable.STATE_UNSELECTED);
         }
     }
-    private void loadPattern(List<Point> pattern)
+    private void loadPattern(List<Point> pattern, HighlightMode highlightMode)
     {
         for(int ii = 0; ii < pattern.size(); ii++)
         {
             Point e = pattern.get(ii);
             NodeDrawable node = mNodeDrawables[e.x][e.y];
-            int state = mHighlightMode.select(node, ii, pattern.size(),
+            int state = highlightMode.select(node, ii, pattern.size(),
                     e.x, e.y, mLengthNodes);
             node.setNodeState(state); // rolls off the tongue
             // if another node follows, then tell the current node which way
@@ -149,6 +159,29 @@ public class LockPatternView extends View
                         tailCenter.x - nodeCenter.x));
         }
         pattern.add(node);
+    }
+
+    private void testPracticePattern()
+    {
+        mDisplayingPracticeResult = true;
+        HighlightMode mode = mPracticeFailureMode;
+        if(mPracticePattern.equals(mCurrentPattern))
+        {
+            mode = mPracticeSuccessMode;
+        }
+        loadPattern(mPracticePattern, mode);
+        // clear the result display after a delay
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(mDisplayingPracticeResult) {
+                    clearPattern(mPracticePattern);
+                    mPracticePattern.clear();
+                    mPracticePool.clear();
+                    invalidate();
+                }
+            }
+        }, PRACTICE_RESULT_DISPLAY_MILLIS);
     }
 
     //
@@ -231,6 +264,7 @@ public class LockPatternView extends View
                 break;
             case MotionEvent.ACTION_UP:
                 mDrawTouchExtension = false;
+                testPracticePattern();
                 break;
             default:
                 return super.onTouchEvent(event);
@@ -293,7 +327,7 @@ public class LockPatternView extends View
                     + "practice mode");
         }
         clearPattern(mCurrentPattern);
-        loadPattern(pattern);
+        loadPattern(pattern, mHighlightMode);
 
         mCurrentPattern = pattern;
     }
@@ -324,6 +358,7 @@ public class LockPatternView extends View
 
     public void setPracticeMode(boolean mode)
     {
+        mDisplayingPracticeResult = false;
         mPracticeMode = mode;
         if(mode)
         {
@@ -334,7 +369,7 @@ public class LockPatternView extends View
         else
         {
             clearPattern(mPracticePattern);
-            loadPattern(mCurrentPattern);
+            loadPattern(mCurrentPattern, mHighlightMode);
         }
     }
     public boolean getPracticeMode()
@@ -415,6 +450,24 @@ public class LockPatternView extends View
             node.setCustomColor(color);
 
             return NodeDrawable.STATE_CUSTOM;
+        }
+    }
+    public static class FailureHighlight implements HighlightMode
+    {
+        @Override
+        public int select(NodeDrawable node, int patternIndex,
+                int patternLength, int nodeX, int nodeY, int gridLength)
+        {
+            return NodeDrawable.STATE_INCORRECT;
+        }
+    }
+    public static class SuccessHighlight implements HighlightMode
+    {
+        @Override
+        public int select(NodeDrawable node, int patternIndex,
+                int patternLength, int nodeX, int nodeY, int gridLength)
+        {
+            return NodeDrawable.STATE_CORRECT;
         }
     }
 }

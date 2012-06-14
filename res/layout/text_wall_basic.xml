@@ -28,18 +28,12 @@ You should have received a copy of the GNU General Public License along with
         android:padding="10dp"
         >
         <TextView
-            android:id="@+id/text_body"
+            android:id="@+id/text_wall"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="BODY"
             android:textSize="16sp"
             android:textColorLink="#888888"
             />
-        <ImageView 
-           android:src="@drawable/license_icon"
-           android:layout_width="fill_parent"
-           android:layout_height="wrap_content"
-           android:padding="10dp"
-           />
     </LinearLayout>
 </ScrollView>

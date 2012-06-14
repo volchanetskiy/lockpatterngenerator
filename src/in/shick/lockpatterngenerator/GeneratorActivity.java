@@ -53,6 +53,7 @@ public class GeneratorActivity extends BaseActivity
     protected int mPatternMin;
     protected int mPatternMax;
     protected String mHighlightMode;
+    private List<Point> mEasterEggPattern;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -81,6 +82,12 @@ public class GeneratorActivity extends BaseActivity
                 exceptionHandler.uncaughtException(thread, throwable);
             }
         });
+        // It's a secret to everybody
+        mEasterEggPattern = new ArrayList<Point>();
+        mEasterEggPattern.add(new Point(0,1));
+        mEasterEggPattern.add(new Point(1,2));
+        mEasterEggPattern.add(new Point(2,1));
+        mEasterEggPattern.add(new Point(1,0));
 
         // find views
         setContentView(R.layout.generator_activity);
@@ -96,6 +103,22 @@ public class GeneratorActivity extends BaseActivity
             public void onClick(View view) {
                 mPatternView.setPattern(mGenerator.getPattern());
                 mPatternView.invalidate();
+            }
+        });
+        mGenerateButton.setOnLongClickListener(
+                new Button.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if(mPatternView.getGridLength() == 3) {
+                    LockPatternView.HighlightMode oldHighlight =
+                        mPatternView.getHighlightMode();
+                    mPatternView.setHighlightMode(
+                        new LockPatternView.NoHighlight());
+                    mPatternView.setPattern(mEasterEggPattern);
+                    mPatternView.setHighlightMode(oldHighlight);
+                }
+                mPatternView.invalidate();
+                return true;
             }
         });
 

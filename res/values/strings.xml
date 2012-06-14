@@ -26,5 +26,9 @@ You should have received a copy of the GNU General Public License along with
     <string name="practice">Practice</string>
     <string name="help">Help</string>
     <string name="about">About</string>
+    <string name="notice">Note:</string>
+    <string name="cont">Continue</string>
     <string name="settings_shortcut_failure">This shortcut won\'t work on your device!  Try going to your device security settings to set the pattern.</string>
+    <string name="separation_warning">You are leaving Lock Pattern Generator.\n\nLock Pattern Generator is separate from the screen lock and cannot control it.\nIf you have trouble with the screen lock, contact your manufacturer.</string>
+    <string name="separation_warning_disable">Always show this reminder</string>
 </resources>

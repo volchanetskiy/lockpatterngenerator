@@ -18,12 +18,17 @@ You should have received a copy of the GNU General Public License along with
 */
 package in.shick.lockpatterngenerator;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -33,6 +38,8 @@ import java.util.List;
 
 public class GeneratorActivity extends BaseActivity
 {
+    public static final int DIALOG_SEPARATION_WARNING = 0;
+
     protected LockPatternView mPatternView;
     protected Button mGenerateButton;
     protected Button mSecuritySettingsButton;
@@ -43,6 +50,7 @@ public class GeneratorActivity extends BaseActivity
     protected int mPatternMax;
     protected String mHighlightMode;
 
+    @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -70,16 +78,14 @@ public class GeneratorActivity extends BaseActivity
         mSecuritySettingsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v)
             {
-                try
-                {
-                    startActivity(
-                        new Intent(Settings.ACTION_SECURITY_SETTINGS));
+                // warn the poorly-informed and those without a command of
+                // English that LPG is separate from the lock
+                if(mPreferences.getBoolean("remind_of_separation",
+                        Defaults.REMIND_OF_SEPARATION)) {
+                    showDialog(DIALOG_SEPARATION_WARNING);
                 }
-                catch(android.content.ActivityNotFoundException e)
-                {
-                    Toast.makeText(GeneratorActivity.this,
-                        getString(R.string.settings_shortcut_failure),
-                        Toast.LENGTH_LONG).show();
+                else {
+                    jumpToSecurity();
                 }
             }
         });
@@ -96,11 +102,70 @@ public class GeneratorActivity extends BaseActivity
         });
     }
 
+    @Override
     protected void onResume()
     {
         super.onResume();
         
         updateFromPrefs();
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id)
+    {
+        Dialog dialog;
+        switch(id)
+        {
+        case DIALOG_SEPARATION_WARNING:
+            //set up the users ability to disable this reminder
+            View disableView = getLayoutInflater()
+                .inflate(R.layout.separation_reminder_disable, null);
+            ((CheckBox) disableView.findViewById(R.id.disable_checkbox))
+                .setOnCheckedChangeListener(
+                        new CheckBox.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton view,
+                            boolean checked) {
+                        mPreferences.edit().putBoolean("remind_of_separation",
+                            checked).commit();
+                    }
+                }
+            );
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(getString(R.string.notice))
+                   .setMessage(getString(R.string.separation_warning))
+                   .setIcon(android.R.drawable.ic_dialog_info)
+                   .setView(disableView)
+                   .setCancelable(true)
+                   .setPositiveButton(getString(R.string.cont),
+                           new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialog, int id) {
+                           jumpToSecurity();
+                       }
+                   });
+            dialog = builder.create();
+            
+            break;
+        default:
+            dialog = null;
+        }
+        return dialog;
+    }
+
+    private void jumpToSecurity()
+    {
+        try
+        {
+            startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
+        }
+        catch(android.content.ActivityNotFoundException e)
+        {
+            Toast.makeText(GeneratorActivity.this,
+                    getString(R.string.settings_shortcut_failure),
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     private void updateFromPrefs()

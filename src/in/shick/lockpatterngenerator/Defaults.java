@@ -24,4 +24,5 @@ public class Defaults
     public static final int PATTERN_MIN = 4;
     public static final int PATTERN_MAX = 5;
     public static final String HIGHLIGHT_MODE = "first";
+    public static final boolean REMIND_OF_SEPARATION = true;
 }

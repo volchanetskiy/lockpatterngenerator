@@ -29,9 +29,10 @@ import android.graphics.Point;
 public class NodeDrawable extends Drawable
 {
     public static final int STATE_UNSELECTED = 0, STATE_SELECTED = 1,
-           STATE_HIGHLIGHTED = 2, STATE_CORRECT = 3, STATE_INCORRECT = 4;
+           STATE_HIGHLIGHTED = 2, STATE_CORRECT = 3, STATE_INCORRECT = 4,
+           STATE_CUSTOM = 5;
     public static final int[] DEFAULT_STATE_COLORS = {
-        0xff999999, 0xff00cc00, 0xff00cccc, 0xff1111ff, 0xffdd1111
+        0xff999999, 0xff00cc00, 0xff00cccc, 0xff1111ff, 0xffdd1111, 0xff999999
     };
 
     public static final int CIRCLE_COUNT = 3;
@@ -57,6 +58,7 @@ public class NodeDrawable extends Drawable
     protected Point mCenter;
     protected float mDiameter;
     protected int mState;
+    protected int mCustomColor;
 
     public NodeDrawable(float diameter, Point center)
     {
@@ -65,6 +67,7 @@ public class NodeDrawable extends Drawable
         mDiameter = diameter;
         mState = STATE_UNSELECTED;
         mExitAngle = Float.NaN;
+        setCustomColor(DEFAULT_STATE_COLORS[STATE_CUSTOM]);
 
         mExitPaint = new Paint();
         mExitPaint.setStyle(Paint.Style.FILL);
@@ -113,8 +116,13 @@ public class NodeDrawable extends Drawable
 
     public void setNodeState(int state)
     {
-        mCircles[CIRCLE_OUTER].getPaint().setColor(DEFAULT_STATE_COLORS[state]);
-        mExitPaint.setColor(DEFAULT_STATE_COLORS[state]);
+        int color = mCustomColor;
+        if(state != STATE_CUSTOM)
+        {
+            color = DEFAULT_STATE_COLORS[state];
+        }
+        mCircles[CIRCLE_OUTER].getPaint().setColor(color);
+        mExitPaint.setColor(color);
         if(state == STATE_UNSELECTED)
         {
             setExitAngle(Float.NaN);
@@ -168,6 +176,15 @@ public class NodeDrawable extends Drawable
     public Point getCenter()
     {
         return mCenter;
+    }
+
+    public void setCustomColor(int color)
+    {
+        mCustomColor = color;
+    }
+    public int getCustomColor()
+    {
+        return mCustomColor;
     }
 
     //

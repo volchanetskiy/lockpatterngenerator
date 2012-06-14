@@ -18,10 +18,14 @@ You should have received a copy of the GNU General Public License along with
 */
 package in.shick.lockpatterngenerator;
 
+import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +34,13 @@ public class GeneratorActivity extends BaseActivity
 {
     protected LockPatternView mPatternView;
     protected Button mGenerateButton;
+    protected Button mSecuritySettingsButton;
+    protected ToggleButton mPracticeToggle;
     protected PatternGenerator mGenerator;
     protected int mGridLength;
     protected int mPatternMin;
     protected int mPatternMax;
+    protected String mHighlightMode;
 
     public void onCreate(Bundle savedInstanceState)
     {
@@ -46,6 +53,9 @@ public class GeneratorActivity extends BaseActivity
         setContentView(R.layout.generator_activity);
         mPatternView = (LockPatternView) findViewById(R.id.pattern_view);
         mGenerateButton = (Button) findViewById(R.id.generate_button);
+        mSecuritySettingsButton =
+            (Button) findViewById(R.id.security_settings_button);
+        mPracticeToggle = (ToggleButton) findViewById(R.id.practice_toggle);
 
         // set up views
         mGenerateButton.setOnClickListener(new Button.OnClickListener() {
@@ -53,6 +63,23 @@ public class GeneratorActivity extends BaseActivity
             public void onClick(View view) {
                 mPatternView.setPattern(mGenerator.getPattern());
                 mPatternView.invalidate();
+            }
+        });
+
+        mSecuritySettingsButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v)
+            {
+                try
+                {
+                    startActivity(
+                        new Intent(Settings.ACTION_SECURITY_SETTINGS));
+                }
+                catch(android.content.ActivityNotFoundException e)
+                {
+                    Toast.makeText(GeneratorActivity.this,
+                        getString(R.string.settings_shortcut_failure),
+                        Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -72,6 +99,8 @@ public class GeneratorActivity extends BaseActivity
             mPreferences.getInt("pattern_min", Defaults.PATTERN_MIN);
         int patternMax =
             mPreferences.getInt("pattern_max", Defaults.PATTERN_MAX);
+        String highlightMode =
+            mPreferences.getString("highlight_mode", Defaults.HIGHLIGHT_MODE);
 
         // sanity checking
         if(gridLength < 1)
@@ -113,6 +142,10 @@ public class GeneratorActivity extends BaseActivity
         {
             setPatternMin(patternMin);
         }
+        if(!highlightMode.equals(mHighlightMode))
+        {
+            setHighlightMode(highlightMode);
+        }
     }
 
     private void setGridLength(int length)
@@ -129,5 +162,23 @@ public class GeneratorActivity extends BaseActivity
     {
         mPatternMax = nodes;
         mGenerator.setMaxNodes(nodes);
+    }
+    private void setHighlightMode(String mode)
+    {
+        if("no".equals(mode))
+        {
+            mPatternView.setHighlightMode(new LockPatternView.NoHighlight());
+        }
+        else if("first".equals(mode))
+        {
+            mPatternView.setHighlightMode(new LockPatternView.FirstHighlight());
+        }
+        else if("rainbow".equals(mode))
+        {
+            mPatternView.setHighlightMode(
+                    new LockPatternView.RainbowHighlight());
+        }
+
+        mHighlightMode = mode;
     }
 }

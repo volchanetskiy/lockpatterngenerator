@@ -20,6 +20,7 @@ package in.shick.lockpatterngenerator;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -41,6 +42,7 @@ public class LockPatternView extends View
     protected int mCellLength;
     protected NodeDrawable[][] mNodeDrawables;
     protected Paint mEdgePaint;
+    protected HighlightMode mHighlightMode;
 
     protected List<Point> mCurrentPattern;
 
@@ -52,6 +54,7 @@ public class LockPatternView extends View
         mLengthNodes = DEFAULT_LENGTH_NODES;
         mNodeDrawables = new NodeDrawable[0][0];
         mCurrentPattern = Collections.emptyList();
+        mHighlightMode = new NoHighlight();
 
         mEdgePaint = new Paint();
         mEdgePaint.setColor(EDGE_COLOR);
@@ -174,8 +177,10 @@ public class LockPatternView extends View
         for(int ii = 0; ii < pattern.size(); ii++)
         {
             Point e = pattern.get(ii);
-            mNodeDrawables[e.x][e.y]
-                .setNodeState(NodeDrawable.STATE_SELECTED);
+            NodeDrawable node = mNodeDrawables[e.x][e.y];
+            int state = mHighlightMode.select(node, ii, pattern.size(),
+                    e.x, e.y, mLengthNodes);
+            node.setNodeState(state); // rolls off the tongue
             // if another node follows, then tell the current node which way
             // to point
             if(ii < pattern.size() - 1)
@@ -208,6 +213,15 @@ public class LockPatternView extends View
         return mLengthNodes;
     }
 
+    public void setHighlightMode(HighlightMode mode)
+    {
+        mHighlightMode = mode;
+    }
+    public HighlightMode getHighlightMode()
+    {
+        return mHighlightMode;
+    }
+
     //
     // Inner classes
     //
@@ -235,6 +249,52 @@ public class LockPatternView extends View
         @Override
         public void remove() {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    // Interface for choosing what state to put a node in based on its position
+    // in the pattern, allowing for things like highlighting the first node etc.
+    public interface HighlightMode
+    {
+        int select(NodeDrawable node, int patternIndex, int patternLength,
+                int nodeX, int nodeY, int gridLength);
+    }
+
+    public static class NoHighlight implements HighlightMode
+    {
+        @Override
+        public int select(NodeDrawable node, int patternIndex,
+                int patternLength, int nodeX, int nodeY, int gridLength)
+        {
+            return NodeDrawable.STATE_SELECTED;
+        }
+    }
+    public static class FirstHighlight implements HighlightMode
+    {
+        @Override
+        public int select(NodeDrawable node, int patternIndex,
+                int patternLength, int nodeX, int nodeY, int gridLength)
+        {
+            if(patternIndex == 0)
+            {
+                return NodeDrawable.STATE_HIGHLIGHTED;
+            }
+            return NodeDrawable.STATE_SELECTED;
+        }
+    }
+    public static class RainbowHighlight implements HighlightMode
+    {
+        @Override
+        public int select(NodeDrawable node, int patternIndex,
+                int patternLength, int nodeX, int nodeY, int gridLength)
+        {
+            float wheelPosition = ((float) patternIndex / (float) patternLength)
+                * 360.0f;
+            int color = Color.HSVToColor(
+                    new float[] { wheelPosition, 1.0f, 1.0f });
+            node.setCustomColor(color);
+
+            return NodeDrawable.STATE_CUSTOM;
         }
     }
 }

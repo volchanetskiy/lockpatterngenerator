@@ -179,6 +179,7 @@ public class LockPatternView extends View
                     mPracticePattern.clear();
                     mPracticePool.clear();
                     invalidate();
+                    mDisplayingPracticeResult = false;
                 }
             }
         }, PRACTICE_RESULT_DISPLAY_MILLIS);
@@ -238,6 +239,10 @@ public class LockPatternView extends View
         switch(event.getAction())
         {
             case MotionEvent.ACTION_DOWN:
+                if(mDisplayingPracticeResult)
+                {
+                    return super.onTouchEvent(event);
+                }
                 mDrawTouchExtension = true;
             case MotionEvent.ACTION_MOVE:
                 float x = event.getX(), y = event.getY();

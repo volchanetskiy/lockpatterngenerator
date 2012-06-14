@@ -86,6 +86,7 @@ public class LockPatternView extends View
         mEdgePaint = new Paint();
         mEdgePaint.setColor(EDGE_COLOR);
         mEdgePaint.setStrokeCap(Paint.Cap.ROUND);
+        mEdgePaint.setFlags(Paint.ANTI_ALIAS_FLAG);
     }
 
     // called whenever either the actual drawn length or the nodewise length

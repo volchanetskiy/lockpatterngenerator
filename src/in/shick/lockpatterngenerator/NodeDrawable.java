@@ -71,6 +71,7 @@ public class NodeDrawable extends Drawable
 
         mExitPaint = new Paint();
         mExitPaint.setStyle(Paint.Style.FILL);
+        mExitPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 
         buildShapes(diameter, center);
     }
@@ -93,7 +94,9 @@ public class NodeDrawable extends Drawable
         for(int ii = 0; ii < CIRCLE_COUNT; ii++)
         {
             mCircles[ii] = new ShapeDrawable(new OvalShape());
-            mCircles[ii].getPaint().setColor(DEFAULT_CIRCLE_COLORS[ii]);
+            Paint circlePaint = mCircles[ii].getPaint();
+            circlePaint.setColor(DEFAULT_CIRCLE_COLORS[ii]);
+            circlePaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 
             float diameter = outerDiameter * CIRCLE_RATIOS[ii];
             int offset = (int) (diameter / 2.0f);

@@ -41,7 +41,10 @@ public class LockPatternView extends View
     public static final int DEFAULT_LENGTH_PX = 100, DEFAULT_LENGTH_NODES = 3;
     public static final float CELL_NODE_RATIO = 0.75f, NODE_EDGE_RATIO = 0.33f;
     public static final int EDGE_COLOR = 0xffcccccc;
+    public static final int BACKGROUND_COLOR = 0xff000000;
+    public static final int DEATH_COLOR = 0xffff0000;
     public static final int PRACTICE_RESULT_DISPLAY_MILLIS = 1 * 1000;
+    public static final long BUILD_TIMEOUT_MILLIS = 1 * 1000;
 
     protected int mLengthPx;
     protected int mLengthNodes;
@@ -98,10 +101,17 @@ public class LockPatternView extends View
         mTouchThreshold = (int) (nodeDiameter / 2);
         int cellHalf = mCellLength / 2;
 
+        long buildStart = System.currentTimeMillis();
         for(int y = 0; y < mLengthNodes; y++)
         {
             for(int x = 0; x < mLengthNodes; x++)
             {
+                // if just building the drawables is taking too long, bail!
+                if(System.currentTimeMillis() - buildStart
+                        >= BUILD_TIMEOUT_MILLIS)
+                {
+                    EmergencyExit.clearAndBail(getContext());
+                }
                 Point center = new Point(x * mCellLength + cellHalf,
                         y * mCellLength + cellHalf);
                 mNodeDrawables[x][y] = new NodeDrawable(nodeDiameter, center);

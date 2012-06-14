@@ -26,6 +26,9 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -38,7 +41,8 @@ import java.util.List;
 
 public class GeneratorActivity extends BaseActivity
 {
-    public static final int DIALOG_SEPARATION_WARNING = 0;
+    public static final int DIALOG_SEPARATION_WARNING = 0,
+           DIALOG_EXITED_HARD = 1;
 
     protected LockPatternView mPatternView;
     protected Button mGenerateButton;
@@ -57,6 +61,26 @@ public class GeneratorActivity extends BaseActivity
 
         // non-UI setup
         mGenerator = new PatternGenerator();
+        if(mPreferences.getBoolean("exited_hard", Defaults.EXITED_HARD))
+        {
+            mPreferences.edit().putBoolean("exited_hard", false).commit();
+            showDialog(DIALOG_EXITED_HARD);
+        }
+        // set a default exception handler to catch out of memory errors
+        // gracefully
+        final Thread.UncaughtExceptionHandler exceptionHandler =
+            Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(
+                new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable throwable) {
+                if(throwable instanceof OutOfMemoryError) {
+                    EmergencyExit.clearAndBail(GeneratorActivity.this);
+                }
+                // punt if it's not an exception we can handle
+                exceptionHandler.uncaughtException(thread, throwable);
+            }
+        });
 
         // find views
         setContentView(R.layout.generator_activity);
@@ -114,6 +138,7 @@ public class GeneratorActivity extends BaseActivity
     protected Dialog onCreateDialog(int id)
     {
         Dialog dialog;
+        AlertDialog.Builder builder;
         switch(id)
         {
         case DIALOG_SEPARATION_WARNING:
@@ -132,7 +157,7 @@ public class GeneratorActivity extends BaseActivity
                 }
             );
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder = new AlertDialog.Builder(this);
             builder.setTitle(getString(R.string.notice))
                    .setMessage(getString(R.string.separation_warning))
                    .setIcon(android.R.drawable.ic_dialog_info)
@@ -148,10 +173,54 @@ public class GeneratorActivity extends BaseActivity
             dialog = builder.create();
             
             break;
+        case DIALOG_EXITED_HARD:
+            builder = new AlertDialog.Builder(this);
+            builder.setTitle(getString(R.string.notice))
+                   .setMessage(getString(R.string.emergency_exit))
+                   .setIcon(android.R.drawable.ic_dialog_info)
+                   .setCancelable(true)
+                   .setPositiveButton(getString(R.string.cont),
+                           new DialogInterface.OnClickListener() {
+                       @Override
+                       public void onClick(DialogInterface dialog, int id) {
+                           dialog.dismiss();
+                       }
+                   });
+            dialog = builder.create();
+            break;
         default:
             dialog = null;
         }
         return dialog;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.generator_activity, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        Intent intent = null;
+        switch (item.getItemId())
+        {
+            case R.id.menu_settings:
+                startActivity(new Intent().setClass(this,
+                            PreferencesActivity.class));
+                return true;
+            //case R.id.menu_help:
+                //startActivity(new Intent().setClass(this, HelpActivity.class));
+                //return true;
+            //case R.id.menu_about:
+                //startActivity(new Intent().setClass(this, AboutActivity.class));
+                //return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void jumpToSecurity()

@@ -18,53 +18,44 @@ You should have received a copy of the GNU General Public License along with
 'Lock Pattern Generator'.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-        <PreferenceCategory android:title="Path Length">
-            <EditTextPreference
-                    android:name="Minimum"
-                    android:inputType="number"
-                    android:summary="Include no fewer than this many nodes in paths"
-                    android:defaultValue="4"
-                    android:title="Minimum"
-                    android:key="minLengthPref"
-                    />
-            <EditTextPreference
-                    android:name="Maximum"
-                    android:inputType="number"
-                    android:summary="Include no more than this many nodes in paths"
-                    android:defaultValue="5"
-                    android:title="Maximum"
-                    android:key="maxLengthPref"
-                    />
-        </PreferenceCategory>
-        <PreferenceCategory android:title="Display">
-            <CheckBoxPreference
-                android:title="Highlight First Node"
-                android:summary="Make the beginning of the generated path more noticeable"
-                android:defaultValue="true"
-                android:key="firstNodePref"
-                />
-        </PreferenceCategory>
-        <PreferenceCategory android:title="Other">
-            <PreferenceScreen
-                android:title="Other Settings"
-                android:summary="Settings that don't pertain to the Google lock screen"
-                >
-                <PreferenceCategory android:title="Grid">
-                    <EditTextPreference
-                        android:inputType="number"
-                        android:name="Grid Size"
-                        android:summary="Generate paths for a grid with this many nodes to a side"
-                        android:defaultValue="3"
-                        android:title="Grid Size"
-                        android:key="gridSizePref"
-                        />
-            <CheckBoxPreference
-                android:title="Allow Arbitrary Grid Size"
-                android:summary="DANGER: Large grids are unstable!"
-                android:defaultValue="false"
-                android:key="arbitraryGridPref"
-                />
-                </PreferenceCategory>
-            </PreferenceScreen>
-        </PreferenceCategory>
+    <PreferenceCategory android:title="@string/generation_pref_category">
+        <EditTextPreference
+            android:title="@string/path_min_pref"
+            android:inputType="number"
+            android:defaultValue="4"
+            android:key="dummy_pattern_min"
+            />
+        <EditTextPreference
+            android:title="@string/path_max_pref"
+            android:inputType="number"
+            android:defaultValue="5"
+            android:key="dummy_pattern_max"
+            />
+        <EditTextPreference
+            android:title="@string/grid_length_pref"
+            android:summary="@string/grid_length_pref_summary"
+            android:inputType="number"
+            android:defaultValue="3"
+            android:key="dummy_grid_length"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/display_pref_category">
+        <ListPreference
+            android:title="@string/highlight_pref"
+            android:summary="@string/highlight_pref_summary"
+            android:entries="@array/highlight_entries"
+            android:entryValues="@array/highlight_values"
+            android:dialogTitle="@string/highlight_pref"
+            android:defaultValue="first"
+            android:key="highlight_mode"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/derp_pref_category">
+        <CheckBoxPreference
+            android:title="@string/separation_reminder_pref"
+            android:summary="@string/separation_reminder_pref_summary"
+            android:defaultValue="true"
+            android:key="remind_of_separation"
+            />
+    </PreferenceCategory>
 </PreferenceScreen>

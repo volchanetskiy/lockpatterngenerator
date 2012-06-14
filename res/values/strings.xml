@@ -27,8 +27,24 @@ You should have received a copy of the GNU General Public License along with
     <string name="help">Help</string>
     <string name="about">About</string>
     <string name="notice">Note:</string>
+    <string name="warn">Warning!</string>
     <string name="cont">Continue</string>
+    <string name="understood">Understood</string>
     <string name="settings_shortcut_failure">This shortcut won\'t work on your device!  Try going to your device security settings to set the pattern.</string>
     <string name="separation_warning">You are leaving Lock Pattern Generator.\n\nLock Pattern Generator is separate from the screen lock and cannot control it.\nIf you have trouble with the screen lock, contact your manufacturer.</string>
     <string name="separation_warning_disable">Always show this reminder</string>
+    <string name="emergency_exit">Something happened that made Lock Pattern Generator explode.\n\nYour settings have been reset for safety.</string>
+
+    <!-- prefs strings -->
+    <string name="generation_pref_category">Pattern Generation</string>
+    <string name="display_pref_category">Display</string>
+    <string name="derp_pref_category">Mother Hen</string>
+    <string name="path_min_pref">Minimum length</string>
+    <string name="path_max_pref">Maximum length</string>
+    <string name="grid_length_pref">Grid size</string>
+    <string name="grid_length_pref_summary">Generate patterns for an NxN grid</string>
+    <string name="highlight_pref">Highlighting</string>
+    <string name="highlight_pref_summary">Make patterns easier to follow</string>
+    <string name="separation_reminder_pref">Separation Reminder</string>
+    <string name="separation_reminder_pref_summary">Remind users that this program is not locking their device</string>
 </resources>

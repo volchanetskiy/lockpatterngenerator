@@ -18,12 +18,16 @@ You should have received a copy of the GNU General Public License along with
 */
 package in.shick.lockpatterngenerator;
 
-public class Defaults
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+public class EmergencyExit
 {
-    public static final int GRID_LENGTH = 3;
-    public static final int PATTERN_MIN = 4;
-    public static final int PATTERN_MAX = 5;
-    public static final String HIGHLIGHT_MODE = "first";
-    public static final boolean REMIND_OF_SEPARATION = true;
-    public static final boolean EXITED_HARD = false;
+    public static void clearAndBail(Context context)
+    {
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .edit().clear().putBoolean("exited_hard", true).commit();
+        System.exit(-1);
+    }
 }

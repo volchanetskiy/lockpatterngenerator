@@ -25,11 +25,15 @@ import android.graphics.drawable.Drawable;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 public class LockPatternView extends View
 {
@@ -43,8 +47,15 @@ public class LockPatternView extends View
     protected NodeDrawable[][] mNodeDrawables;
     protected Paint mEdgePaint;
     protected HighlightMode mHighlightMode;
+    protected boolean mPracticeMode;
+    protected Point mTouchPoint;
+    protected Point mTouchCell;
+    protected boolean mDrawTouchExtension;
+    protected int mTouchThreshold;
 
     protected List<Point> mCurrentPattern;
+    protected List<Point> mPracticePattern;
+    protected Set<Point> mPracticePool;
 
     public LockPatternView(Context context, AttributeSet attrs)
     {
@@ -55,6 +66,9 @@ public class LockPatternView extends View
         mNodeDrawables = new NodeDrawable[0][0];
         mCurrentPattern = Collections.emptyList();
         mHighlightMode = new NoHighlight();
+        mTouchPoint = new Point(-1, -1);
+        mTouchCell = new Point(-1, -1);
+        mDrawTouchExtension = false;
 
         mEdgePaint = new Paint();
         mEdgePaint.setColor(EDGE_COLOR);
@@ -71,6 +85,7 @@ public class LockPatternView extends View
 
         float nodeDiameter = ((float) mCellLength) * CELL_NODE_RATIO;
         mEdgePaint.setStrokeWidth(nodeDiameter * NODE_EDGE_RATIO);
+        mTouchThreshold = (int) (nodeDiameter / 2);
         int cellHalf = mCellLength / 2;
 
         for(int y = 0; y < mLengthNodes; y++)
@@ -84,6 +99,58 @@ public class LockPatternView extends View
         }
     }
 
+    private void clearPattern(List<Point> pattern)
+    {
+        for(Point e : pattern)
+        {
+            mNodeDrawables[e.x][e.y]
+                .setNodeState(NodeDrawable.STATE_UNSELECTED);
+        }
+    }
+    private void loadPattern(List<Point> pattern)
+    {
+        for(int ii = 0; ii < pattern.size(); ii++)
+        {
+            Point e = pattern.get(ii);
+            NodeDrawable node = mNodeDrawables[e.x][e.y];
+            int state = mHighlightMode.select(node, ii, pattern.size(),
+                    e.x, e.y, mLengthNodes);
+            node.setNodeState(state); // rolls off the tongue
+            // if another node follows, then tell the current node which way
+            // to point
+            if(ii < pattern.size() - 1)
+            {
+                Point f = pattern.get(ii+1);
+                Point centerE = mNodeDrawables[e.x][e.y].getCenter();
+                Point centerF = mNodeDrawables[f.x][f.y].getCenter();
+
+                mNodeDrawables[e.x][e.y].setExitAngle((float)
+                        Math.atan2(centerE.y - centerF.y,
+                            centerE.x - centerF.x));
+            }
+        }
+    }
+    // only works properly with practice mode due to highlighting, should
+    // probably be generalized and used to replace the bulk of loadPattern()
+    private void appendPattern(List<Point> pattern, Point node)
+    {
+        NodeDrawable nodeDraw = mNodeDrawables[node.x][node.y];
+        nodeDraw.setNodeState(NodeDrawable.STATE_SELECTED);
+        if(pattern.size() > 0)
+        {
+            Point tailNode = pattern.get(pattern.size() - 1);
+            NodeDrawable tailDraw = mNodeDrawables[tailNode.x][tailNode.y];
+
+            Point tailCenter = tailDraw.getCenter();
+            Point nodeCenter = nodeDraw.getCenter();
+
+            tailDraw.setExitAngle((float)
+                    Math.atan2(tailCenter.y - nodeCenter.y,
+                        tailCenter.x - nodeCenter.x));
+        }
+        pattern.add(node);
+    }
+
     //
     // android.view.View overrides
     //
@@ -93,8 +160,12 @@ public class LockPatternView extends View
     {
         // draw pattern edges first
         Point edgeStart, edgeEnd;
-        CenterIterator patternPx =
-            new CenterIterator(mCurrentPattern.iterator());
+        List<Point> pattern = mCurrentPattern;
+        if(mPracticeMode)
+        {
+            pattern = mPracticePattern;
+        }
+        CenterIterator patternPx = new CenterIterator(pattern.iterator());
 
         if(patternPx.hasNext())
         {
@@ -107,6 +178,11 @@ public class LockPatternView extends View
 
                 edgeStart = edgeEnd;
             }
+            if(mDrawTouchExtension)
+            {
+                canvas.drawLine(edgeStart.x, edgeStart.y, mTouchPoint.x,
+                        mTouchPoint.y, mEdgePaint);
+            }
         }
 
         // then draw nodes
@@ -117,6 +193,50 @@ public class LockPatternView extends View
                 mNodeDrawables[x][y].draw(canvas);
             }
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event)
+    {
+        if(!mPracticeMode)
+        {
+            return super.onTouchEvent(event);
+        }
+        switch(event.getAction())
+        {
+            case MotionEvent.ACTION_DOWN:
+                mDrawTouchExtension = true;
+            case MotionEvent.ACTION_MOVE:
+                float x = event.getX(), y = event.getY();
+                mTouchPoint.x = (int) x;
+                mTouchPoint.y = (int) y;
+                mTouchCell.x = (int) x / mCellLength;
+                mTouchCell.y = (int) y / mCellLength;
+                if(mTouchCell.x < 0 || mTouchCell.x >= mLengthNodes
+                        || mTouchCell.y < 0 || mTouchCell.y >= mLengthNodes)
+                {
+                    break;
+                }
+                Point nearestCenter =
+                    mNodeDrawables[mTouchCell.x][mTouchCell.y].getCenter();
+                int dist = (int) Math.sqrt(Math.pow(x - nearestCenter.x, 2)
+                        + Math.pow(y - nearestCenter.y, 2));
+                if(dist < mTouchThreshold
+                        && !mPracticePool.contains(mTouchCell))
+                {
+                    Point newPoint = new Point(mTouchCell);
+                    appendPattern(mPracticePattern, newPoint);
+                    mPracticePool.add(newPoint);
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                mDrawTouchExtension = false;
+                break;
+            default:
+                return super.onTouchEvent(event);
+        }
+        invalidate();
+        return true;
     }
 
     // expand to be as large as the smallest dictated size, or to the default
@@ -167,33 +287,13 @@ public class LockPatternView extends View
 
     public void setPattern(List<Point> pattern)
     {
-        // clear old pattern from nodes
-        for(Point e : mCurrentPattern)
+        if(mPracticeMode)
         {
-            mNodeDrawables[e.x][e.y]
-                .setNodeState(NodeDrawable.STATE_UNSELECTED);
+            throw new IllegalStateException("Cannot set pattern while in "
+                    + "practice mode");
         }
-        // load new pattern into nodes
-        for(int ii = 0; ii < pattern.size(); ii++)
-        {
-            Point e = pattern.get(ii);
-            NodeDrawable node = mNodeDrawables[e.x][e.y];
-            int state = mHighlightMode.select(node, ii, pattern.size(),
-                    e.x, e.y, mLengthNodes);
-            node.setNodeState(state); // rolls off the tongue
-            // if another node follows, then tell the current node which way
-            // to point
-            if(ii < pattern.size() - 1)
-            {
-                Point f = pattern.get(ii+1);
-                Point centerE = mNodeDrawables[e.x][e.y].getCenter();
-                Point centerF = mNodeDrawables[f.x][f.y].getCenter();
-
-                mNodeDrawables[e.x][e.y].setExitAngle((float)
-                        Math.atan2(centerE.y - centerF.y,
-                            centerE.x - centerF.x));
-            }
-        }
+        clearPattern(mCurrentPattern);
+        loadPattern(pattern);
 
         mCurrentPattern = pattern;
     }
@@ -220,6 +320,26 @@ public class LockPatternView extends View
     public HighlightMode getHighlightMode()
     {
         return mHighlightMode;
+    }
+
+    public void setPracticeMode(boolean mode)
+    {
+        mPracticeMode = mode;
+        if(mode)
+        {
+            mPracticePattern = new ArrayList<Point>();
+            mPracticePool = new HashSet<Point>();
+            clearPattern(mCurrentPattern);
+        }
+        else
+        {
+            clearPattern(mPracticePattern);
+            loadPattern(mCurrentPattern);
+        }
+    }
+    public boolean getPracticeMode()
+    {
+        return mPracticeMode;
     }
 
     //

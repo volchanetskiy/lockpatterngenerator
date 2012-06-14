@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -80,6 +81,17 @@ public class GeneratorActivity extends BaseActivity
                         getString(R.string.settings_shortcut_failure),
                         Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+
+        mPracticeToggle.setOnCheckedChangeListener(
+                new ToggleButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView,
+                boolean isChecked)
+            {
+                mGenerateButton.setEnabled(!isChecked);
+                mPatternView.setPracticeMode(isChecked);
+                mPatternView.invalidate();
             }
         });
     }

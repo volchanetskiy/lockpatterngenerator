@@ -18,11 +18,12 @@ You should have received a copy of the GNU General Public License along with
 */
 package in.shick.lockpatterngenerator;
 
+import in.shick.lockpatterngenerator.external.Point;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
@@ -43,6 +44,10 @@ public class GeneratorActivity extends BaseActivity
 {
     public static final int DIALOG_SEPARATION_WARNING = 0,
            DIALOG_EXITED_HARD = 1;
+    public static final String BUNDLE_GRID_LENGTH = "grid_length",
+           BUNDLE_PATTERN_MIN = "pattern_min",
+           BUNDLE_PATTERN_MAX = "pattern_max", BUNDLE_HIGHLIGHT = "highlight",
+           BUNDLE_PATTERN = "pattern";
 
     protected LockPatternView mPatternView;
     protected Button mGenerateButton;
@@ -56,9 +61,9 @@ public class GeneratorActivity extends BaseActivity
     private List<Point> mEasterEggPattern;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
+    public void onCreate(Bundle state)
     {
-        super.onCreate(savedInstanceState);
+        super.onCreate(state);
 
         // non-UI setup
         mGenerator = new PatternGenerator();
@@ -147,6 +152,18 @@ public class GeneratorActivity extends BaseActivity
                 mPatternView.invalidate();
             }
         });
+
+        if(state != null)
+        {
+            mGridLength = state.getInt(BUNDLE_GRID_LENGTH);
+            mPatternMin = state.getInt(BUNDLE_PATTERN_MIN);
+            mPatternMax = state.getInt(BUNDLE_PATTERN_MAX);
+            mHighlightMode = state.getString(BUNDLE_HIGHLIGHT);
+            mPatternView.setGridLength(mGridLength);
+            mPatternView
+                .setPattern((ArrayList<Point>)(ArrayList<?>)
+                        state.getParcelableArrayList(BUNDLE_PATTERN));
+        }
     }
 
     @Override
@@ -253,6 +270,20 @@ public class GeneratorActivity extends BaseActivity
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle state)
+    {
+        super.onSaveInstanceState(state);
+
+        state.putInt(BUNDLE_GRID_LENGTH, mGridLength);
+        state.putInt(BUNDLE_PATTERN_MAX, mPatternMax);
+        state.putInt(BUNDLE_PATTERN_MIN, mPatternMin);
+        state.putString(BUNDLE_HIGHLIGHT, mHighlightMode);
+        ArrayList<Point> pattern =
+            new ArrayList<Point>(mPatternView.getPattern());
+        state.putParcelableArrayList(BUNDLE_PATTERN, pattern);
+    }
+
     private void jumpToSecurity()
     {
         try
@@ -326,6 +357,7 @@ public class GeneratorActivity extends BaseActivity
 
     private void setGridLength(int length)
     {
+        mGridLength = length;
         mGenerator.setGridLength(length);
         mPatternView.setGridLength(length);
     }

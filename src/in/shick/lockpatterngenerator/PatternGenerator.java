@@ -18,7 +18,7 @@ You should have received a copy of the GNU General Public License along with
 */
 package in.shick.lockpatterngenerator;
 
-import android.graphics.Point;
+import in.shick.lockpatterngenerator.external.Point;
 
 import java.util.ArrayList;
 import java.util.HashSet;

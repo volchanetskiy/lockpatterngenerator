@@ -18,12 +18,13 @@ You should have received a copy of the GNU General Public License along with
 */
 package in.shick.lockpatterngenerator;
 
+import in.shick.lockpatterngenerator.external.Point;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;

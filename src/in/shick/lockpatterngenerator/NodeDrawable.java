@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License along with
 'Lock Pattern Generator'.  If not, see <http://www.gnu.org/licenses/>.
 */
 package in.shick.lockpatterngenerator;
+ 
+import in.shick.lockpatterngenerator.external.Point;
 
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
@@ -24,7 +26,6 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Point;
 
 public class NodeDrawable extends Drawable
 {

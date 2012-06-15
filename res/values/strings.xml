@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License along with
 -->
 <resources>
     <string name="program_name">Lock Pattern Generator</string>
-    <string name="settings_view_name">Generation Parameters</string>
+    <string name="settings_view_name">Settings</string>
     <string name="generate_button_label">Generate</string>
     <string name="settings_button_label">Android Security Settings</string>
     <string name="settings">Settings</string>

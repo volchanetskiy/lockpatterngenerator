@@ -24,19 +24,21 @@ You should have received a copy of the GNU General Public License along with
             android:inputType="number"
             android:defaultValue="4"
             android:key="dummy_pattern_min"
+            android:widgetLayout="@layout/pattern_min_pref_widget"
             />
         <EditTextPreference
             android:title="@string/path_max_pref"
             android:inputType="number"
             android:defaultValue="5"
             android:key="dummy_pattern_max"
+            android:widgetLayout="@layout/pattern_max_pref_widget"
             />
         <EditTextPreference
             android:title="@string/grid_length_pref"
-            android:summary="@string/grid_length_pref_summary"
             android:inputType="number"
             android:defaultValue="3"
             android:key="dummy_grid_length"
+            android:widgetLayout="@layout/grid_length_pref_widget"
             />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/display_pref_category">
@@ -48,6 +50,7 @@ You should have received a copy of the GNU General Public License along with
             android:dialogTitle="@string/highlight_pref"
             android:defaultValue="first"
             android:key="highlight_mode"
+            android:widgetLayout="@layout/highlight_pref_widget"
             />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/derp_pref_category">

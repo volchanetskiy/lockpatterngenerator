@@ -119,6 +119,12 @@ public class LockPatternView extends View
                 mNodeDrawables[x][y] = new NodeDrawable(nodeDiameter, center);
             }
         }
+
+        // re-highlight nodes if not in practice
+        if(!mPracticeMode)
+        {
+            loadPattern(mCurrentPattern, mHighlightMode);
+        }
     }
 
     private void clearPattern(List<Point> pattern)
@@ -187,14 +193,19 @@ public class LockPatternView extends View
             @Override
             public void run() {
                 if(mDisplayingPracticeResult) {
-                    clearPattern(mPracticePattern);
-                    mPracticePattern.clear();
-                    mPracticePool.clear();
+                    resetPractice();
                     invalidate();
-                    mDisplayingPracticeResult = false;
                 }
             }
         }, PRACTICE_RESULT_DISPLAY_MILLIS);
+    }
+
+    private void resetPractice()
+    {
+        clearPattern(mPracticePattern);
+        mPracticePattern.clear();
+        mPracticePool.clear();
+        mDisplayingPracticeResult = false;
     }
 
     //
@@ -253,7 +264,7 @@ public class LockPatternView extends View
             case MotionEvent.ACTION_DOWN:
                 if(mDisplayingPracticeResult)
                 {
-                    return super.onTouchEvent(event);
+                    resetPractice();
                 }
                 mDrawTouchExtension = true;
             case MotionEvent.ACTION_MOVE:
@@ -330,6 +341,10 @@ public class LockPatternView extends View
     {
         mLengthPx = Math.min(w,h);
         buildDrawables();
+        if(!mPracticeMode)
+        {
+            loadPattern(mCurrentPattern, mHighlightMode);
+        }
     }
 
     //
@@ -338,11 +353,6 @@ public class LockPatternView extends View
 
     public void setPattern(List<Point> pattern)
     {
-        if(mPracticeMode)
-        {
-            throw new IllegalStateException("Cannot set pattern while in "
-                    + "practice mode");
-        }
         clearPattern(mCurrentPattern);
         loadPattern(pattern, mHighlightMode);
 
@@ -366,7 +376,15 @@ public class LockPatternView extends View
 
     public void setHighlightMode(HighlightMode mode)
     {
+        setHighlightMode(mode, false);
+    }
+    public void setHighlightMode(HighlightMode mode, boolean suppressRepaint)
+    {
         mHighlightMode = mode;
+        if(!suppressRepaint)
+        {
+            loadPattern(mCurrentPattern, mHighlightMode);
+        }
     }
     public HighlightMode getHighlightMode()
     {

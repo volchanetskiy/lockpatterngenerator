@@ -60,13 +60,16 @@ public class GeneratorActivity extends BaseActivity
     protected String mHighlightMode;
     private List<Point> mEasterEggPattern;
 
+    @SuppressWarnings("unchecked")
     @Override
     public void onCreate(Bundle state)
     {
         super.onCreate(state);
 
         // non-UI setup
+
         mGenerator = new PatternGenerator();
+        // if the EmergencyExit was used to bail, tell the user its OK
         if(mPreferences.getBoolean("exited_hard", Defaults.EXITED_HARD))
         {
             mPreferences.edit().putBoolean("exited_hard", false).commit();
@@ -120,7 +123,7 @@ public class GeneratorActivity extends BaseActivity
                     mPatternView.setHighlightMode(
                         new LockPatternView.NoHighlight());
                     mPatternView.setPattern(mEasterEggPattern);
-                    mPatternView.setHighlightMode(oldHighlight);
+                    mPatternView.setHighlightMode(oldHighlight, true);
                 }
                 mPatternView.invalidate();
                 return true;
@@ -153,13 +156,13 @@ public class GeneratorActivity extends BaseActivity
             }
         });
 
+        // restore from a saved instance if applicable
         if(state != null)
         {
-            mGridLength = state.getInt(BUNDLE_GRID_LENGTH);
-            mPatternMin = state.getInt(BUNDLE_PATTERN_MIN);
-            mPatternMax = state.getInt(BUNDLE_PATTERN_MAX);
-            mHighlightMode = state.getString(BUNDLE_HIGHLIGHT);
-            mPatternView.setGridLength(mGridLength);
+            setGridLength(state.getInt(BUNDLE_GRID_LENGTH));
+            setPatternMin(state.getInt(BUNDLE_PATTERN_MIN));
+            setPatternMax(state.getInt(BUNDLE_PATTERN_MAX));
+            setHighlightMode(state.getString(BUNDLE_HIGHLIGHT));
             mPatternView
                 .setPattern((ArrayList<Point>)(ArrayList<?>)
                         state.getParcelableArrayList(BUNDLE_PATTERN));

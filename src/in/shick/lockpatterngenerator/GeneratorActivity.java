@@ -232,9 +232,24 @@ public class GeneratorActivity extends BaseActivity
             dialog = builder.create();
             break;
         default:
-            dialog = null;
+            return super.onCreateDialog(id);
         }
         return dialog;
+    }
+
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog)
+    {
+        switch(id)
+        {
+        case DIALOG_SEPARATION_WARNING:
+            ((CheckBox) dialog.findViewById(R.id.disable_checkbox))
+                .setChecked(mPreferences.getBoolean("remind_of_separation",
+                            Defaults.REMIND_OF_SEPARATION));
+            break;
+        default:
+            super.onPrepareDialog(id, dialog);
+        }
     }
 
     @Override

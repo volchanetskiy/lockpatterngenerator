@@ -376,7 +376,7 @@ public class LockPatternView extends View
 
     public void setHighlightMode(HighlightMode mode)
     {
-        setHighlightMode(mode, false);
+        setHighlightMode(mode, mPracticeMode);
     }
     public void setHighlightMode(HighlightMode mode, boolean suppressRepaint)
     {

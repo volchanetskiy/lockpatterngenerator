@@ -58,6 +58,7 @@ public class GeneratorActivity extends BaseActivity
     protected int mPatternMin;
     protected int mPatternMax;
     protected String mHighlightMode;
+    protected boolean mTactileFeedback;
     private List<Point> mEasterEggPattern;
 
     @SuppressWarnings("unchecked")
@@ -326,6 +327,8 @@ public class GeneratorActivity extends BaseActivity
             mPreferences.getInt("pattern_max", Defaults.PATTERN_MAX);
         String highlightMode =
             mPreferences.getString("highlight_mode", Defaults.HIGHLIGHT_MODE);
+        boolean tactileFeedback = mPreferences.getBoolean("tactile_feedback",
+                Defaults.TACTILE_FEEDBACK);
 
         // sanity checking
         if(gridLength < 1)
@@ -371,6 +374,10 @@ public class GeneratorActivity extends BaseActivity
         {
             setHighlightMode(highlightMode);
         }
+        if(tactileFeedback ^ mTactileFeedback)
+        {
+            setTactileFeedback(tactileFeedback);
+        }
     }
 
     private void setGridLength(int length)
@@ -406,5 +413,10 @@ public class GeneratorActivity extends BaseActivity
         }
 
         mHighlightMode = mode;
+    }
+    private void setTactileFeedback(boolean enabled)
+    {
+        mTactileFeedback = enabled;
+        mPatternView.setTactileFeedbackEnabled(enabled);
     }
 }

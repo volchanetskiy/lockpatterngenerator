@@ -26,4 +26,5 @@ public class Defaults
     public static final String HIGHLIGHT_MODE = "first";
     public static final boolean REMIND_OF_SEPARATION = true;
     public static final boolean EXITED_HARD = false;
+    public static final boolean TACTILE_FEEDBACK = false;
 }

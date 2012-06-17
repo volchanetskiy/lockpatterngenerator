@@ -26,6 +26,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.Paint;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -46,6 +47,7 @@ public class LockPatternView extends View
     public static final int DEATH_COLOR = 0xffff0000;
     public static final int PRACTICE_RESULT_DISPLAY_MILLIS = 1 * 1000;
     public static final long BUILD_TIMEOUT_MILLIS = 1 * 1000;
+    public static final int TACTILE_FEEDBACK_DURATION = 35;
 
     protected int mLengthPx;
     protected int mLengthNodes;
@@ -62,6 +64,8 @@ public class LockPatternView extends View
     protected HighlightMode mPracticeFailureMode;
     protected HighlightMode mPracticeSuccessMode;
     protected Handler mHandler;
+    protected Vibrator mVibrator;
+    protected boolean mTactileFeedback;
 
     protected List<Point> mCurrentPattern;
     protected List<Point> mPracticePattern;
@@ -83,6 +87,8 @@ public class LockPatternView extends View
         mPracticeFailureMode = new FailureHighlight();
         mPracticeSuccessMode = new SuccessHighlight();
         mHandler = new Handler();
+        mVibrator = (Vibrator) getContext()
+            .getSystemService(Context.VIBRATOR_SERVICE);
 
         mEdgePaint = new Paint();
         mEdgePaint.setColor(EDGE_COLOR);
@@ -285,6 +291,10 @@ public class LockPatternView extends View
                 if(dist < mTouchThreshold
                         && !mPracticePool.contains(mTouchCell))
                 {
+                    if(mTactileFeedback)
+                    {
+                        mVibrator.vibrate(TACTILE_FEEDBACK_DURATION);
+                    }
                     Point newPoint = new Point(mTouchCell);
                     appendPattern(mPracticePattern, newPoint);
                     mPracticePool.add(newPoint);
@@ -410,6 +420,15 @@ public class LockPatternView extends View
     public boolean getPracticeMode()
     {
         return mPracticeMode;
+    }
+
+    public void setTactileFeedbackEnabled(boolean enabled)
+    {
+        mTactileFeedback = enabled;
+    }
+    public boolean getTactileFeedbackEnabled()
+    {
+        return mTactileFeedback;
     }
 
     //

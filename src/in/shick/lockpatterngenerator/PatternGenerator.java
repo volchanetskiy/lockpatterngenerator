@@ -21,10 +21,8 @@ package in.shick.lockpatterngenerator;
 import in.shick.lockpatterngenerator.external.Point;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 public class PatternGenerator
 {
@@ -51,40 +49,41 @@ public class PatternGenerator
         }
         // list for random access, set for fast membership testing
         List<Point> nodeAvailList = new ArrayList<Point>(mAllNodes);
-        Set<Point> nodeAvailSet = new HashSet<Point>(mAllNodes);
         int pathMaxLen = (int) Math.min(mMaxNodes, Math.pow(mGridLength, 2));
         int pathLen = mRng.nextInt(pathMaxLen - mMinNodes + 1) + mMinNodes;
 
         Point tail = nodeAvailList.remove(mRng.nextInt(nodeAvailList.size()));
-        nodeAvailSet.remove(tail);
         pattern.add(tail);
         for(int ii = 1; ii < pathLen; ii++)
         {
-            Point candidate =
-                nodeAvailList.get(mRng.nextInt(nodeAvailList.size()));
-            // abusing the Point class as a double to avoid
-            // extra classes / array index magic constants
-            Point delta = new Point(candidate.x - tail.x, candidate.y - tail.y);
-            // compute gcd of delta to avoid skipping over nodes
-            // (like a delta of (2,2))
-            int gcd = Math.abs(computeGcd(delta.x, delta.y));
-            delta.x /= gcd;
-            delta.y /= gcd;
-            // skip back out over nodes already in the path
-            Point next = new Point(tail.x + delta.x, tail.y + delta.y);
-            while(!nodeAvailSet.contains(next))
+            // build list of possible points
+            List<Point> nodeCandidatesList = new ArrayList<Point>(nodeAvailList);
+            for(int i = 0; i < nodeCandidatesList.size(); i++)
             {
-                next.x += delta.x;
-                next.y += delta.y;
+                Point delta = new Point(nodeCandidatesList.get(i).x - tail.x, nodeCandidatesList.get(i).y - tail.y);
+                // remove this point if there is other unused point between this one and "tail"
+                int gcd = Math.abs(computeGcd(delta.x, delta.y));
+                if(gcd > 1)
+                {
+                    for(int j = 1; j < gcd; j++)
+                    {
+                        Point inside = new Point(tail.x + delta.x / gcd * j,tail.y + delta.y / gcd * j);
+                        if(nodeAvailList.contains(inside))
+                        {
+                            nodeCandidatesList.remove(i);
+                            i--;
+                            break;
+                        }
+                    }
+                }
             }
-
+            Point next =
+                    nodeCandidatesList.get(mRng.nextInt(nodeCandidatesList.size()));
             // remove from consideration and add to pattern
             nodeAvailList.remove(next);
-            nodeAvailSet.remove(next);
             pattern.add(next);
             tail = next;
         }
-
         return pattern;
     }
 

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Copyright 2010-2012 Michael Shick
+
+This file is part of 'Lock Pattern Generator'.
+
+'Lock Pattern Generator' is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published by the
+Free Software Foundation, either version 3 of the License, or (at your option)
+any later version.
+
+'Lock Pattern Generator' is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+details.
+
+You should have received a copy of the GNU General Public License along with
+'Lock Pattern Generator'.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<resources>
+    <string name="program_name">Lock Pattern Generator</string>
+    <string name="settings_view_name">Настройки</string>
+    <string name="generate_button_label">Сгенерировать</string>
+    <string name="settings_button_label">Настройки безопасности Android</string>
+    <string name="settings">Настройки</string>
+    <string name="practice">Практиковаться</string>
+    <string name="help">Помощь</string>
+    <string name="about">About</string>
+    <string name="notice">Предупреждение:</string>
+    <string name="warn">Warning!</string>
+    <string name="cont">Продолжить</string>
+    <string name="understood">Understood</string>
+    <string name="settings_shortcut_failure">This shortcut won\'t work on your device!  Try going to your device security settings to set the pattern.</string>
+    <string name="separation_warning">Вы покидаете Lock Pattern Generator.\n\nLock Pattern Generator работает отдельно от экрана блокировки и не может управлять им.\nЕсли у вас возникнут трудности с экраном блокировки, свяжитесь с производителем.</string>
+    <string name="separation_warning_disable">Всегда показывать это напоминание</string>
+    <string name="emergency_exit">Something happened that made Lock Pattern Generator explode.\n\nYour settings have been reset to correct it.</string>
+    <string name="text_wall_failure">Failed to load text wall&lt;br/&gt;&lt;br/&gt;</string>
+
+    <!-- prefs strings -->
+    <string name="generation_pref_category">Генерация графического ключа</string>
+    <string name="display_pref_category">Отображение</string>
+    <string name="derp_pref_category">Дополнительная забота</string>
+    <string name="path_min_pref">Минимальная длина</string>
+    <string name="path_max_pref">Максимальная длина</string>
+    <string name="grid_length_pref">Размер решётки</string>
+    <string name="grid_length_pref_summary">Генерировать графически ключи рамером NxN</string>
+    <string name="highlight_pref">Подсвечивание</string>
+    <string name="highlight_pref_summary">Позволяет проще следить за ключом</string>
+    <string name="separation_reminder_pref">Напоминание</string>
+    <string name="separation_reminder_pref_summary">Напоминать, что эта программа не блокирует устройство</string>
+    <string name="tactile_feedback_pref">Виброотклик</string>
+    <string name="tactile_feedback_pref_summary">Вибрировать при касании на элемент</string>
+</resources>

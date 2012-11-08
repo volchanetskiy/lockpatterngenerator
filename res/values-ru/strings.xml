@@ -25,15 +25,15 @@ You should have received a copy of the GNU General Public License along with
     <string name="settings">Настройки</string>
     <string name="practice">Практиковаться</string>
     <string name="help">Помощь</string>
-    <string name="about">About</string>
+    <string name="about">О программе</string>
     <string name="notice">Предупреждение:</string>
-    <string name="warn">Warning!</string>
+    <string name="warn">Предупреждение!</string>
     <string name="cont">Продолжить</string>
     <string name="understood">Understood</string>
-    <string name="settings_shortcut_failure">This shortcut won\'t work on your device!  Try going to your device security settings to set the pattern.</string>
-    <string name="separation_warning">Вы покидаете Lock Pattern Generator.\n\nLock Pattern Generator работает отдельно от экрана блокировки и не может управлять им.\nЕсли у вас возникнут трудности с экраном блокировки, свяжитесь с производителем.</string>
+    <string name="settings_shortcut_failure">Этот ярлык не работает на вашем устройстве!\n\nПопробуйте самостоятельно перейти в настройки безопасности и установить графический ключ.</string>
+    <string name="separation_warning">Вы покидаете Lock Pattern Generator.\n\nLock Pattern Generator работает независимо от экрана блокировки и не может управлять им.\nЕсли у вас возникнут трудности с экраном блокировки, свяжитесь с производителем.</string>
     <string name="separation_warning_disable">Всегда показывать это напоминание</string>
-    <string name="emergency_exit">Something happened that made Lock Pattern Generator explode.\n\nYour settings have been reset to correct it.</string>
+    <string name="emergency_exit">По какой-то причине Lock Pattern Generator взорвался.\n\nВаши настройки были сброшены, чтобы это поправить.</string>
     <string name="text_wall_failure">Failed to load text wall&lt;br/&gt;&lt;br/&gt;</string>
 
     <!-- prefs strings -->
@@ -45,9 +45,9 @@ You should have received a copy of the GNU General Public License along with
     <string name="grid_length_pref">Размер решётки</string>
     <string name="grid_length_pref_summary">Генерировать графически ключи рамером NxN</string>
     <string name="highlight_pref">Подсвечивание</string>
-    <string name="highlight_pref_summary">Позволяет проще следить за ключом</string>
+    <string name="highlight_pref_summary">Позволяет проще следовать за ключом</string>
     <string name="separation_reminder_pref">Напоминание</string>
     <string name="separation_reminder_pref_summary">Напоминать, что эта программа не блокирует устройство</string>
     <string name="tactile_feedback_pref">Виброотклик</string>
-    <string name="tactile_feedback_pref_summary">Вибрировать при касании на элемент</string>
+    <string name="tactile_feedback_pref_summary">Вибрировать при касании элемента</string>
 </resources>

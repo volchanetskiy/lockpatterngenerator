@@ -273,13 +273,13 @@ public class GeneratorActivity extends BaseActivity
                 return true;
             case R.id.menu_help:
                 intent = new Intent().setClass(this, TextWallActivity.class);
-                intent.putExtra(TextWallActivity.EXTRA_HTML_ASSET, "help.html");
+                intent.putExtra(TextWallActivity.EXTRA_HTML_RESOURCE, R.raw.help);
                 startActivity(intent);
                 return true;
             case R.id.menu_about:
                 intent = new Intent().setClass(this, TextWallActivity.class);
-                intent.putExtra(TextWallActivity.EXTRA_HTML_ASSET,
-                        "about.html");
+                intent.putExtra(TextWallActivity.EXTRA_HTML_RESOURCE,
+                        R.raw.about);
                 intent.putExtra(TextWallActivity.EXTRA_LAYOUT_RESOURCE,
                         R.layout.text_wall_about);
                 startActivity(intent);

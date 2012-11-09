@@ -20,6 +20,7 @@ package in.shick.lockpatterngenerator;
 
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -31,7 +32,7 @@ import java.io.InputStream;
 public class TextWallActivity extends BaseActivity
 {
     public static final String EXTRA_LAYOUT_RESOURCE = "layout_res";
-    public static final String EXTRA_HTML_ASSET = "html_source";
+    public static final String EXTRA_HTML_RESOURCE = "html_source";
     public static final int DEFAULT_LAYOUT_RESOURCE = R.layout.text_wall_basic;
 
     @Override
@@ -46,12 +47,12 @@ public class TextWallActivity extends BaseActivity
         TextView textWall = (TextView) findViewById(R.id.text_wall);
         String wallText = getString(R.string.text_wall_failure);
 
-        String htmlAsset = getIntent().getStringExtra(EXTRA_HTML_ASSET);
+        int htmlResouce = getIntent().getIntExtra(EXTRA_HTML_RESOURCE,0);
 
-        AssetManager assetManager = this.getAssets();
+        Resources resources = this.getResources();
         try
         {
-            InputStream input = assetManager.open(htmlAsset);
+            InputStream input = resources.openRawResource(htmlResouce);
             byte bytes[] = new byte[input.available()];
             input.read(bytes);
             wallText = new String(bytes);

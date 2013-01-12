@@ -32,7 +32,7 @@ You should have received a copy of the GNU General Public License along with
     <string name="understood">Understood</string>
     <string name="settings_shortcut_failure">Этот ярлык не работает на вашем устройстве!\n\nПопробуйте самостоятельно перейти в настройки безопасности и установить графический ключ.</string>
     <string name="separation_warning">Вы покидаете Lock Pattern Generator.\n\nLock Pattern Generator работает независимо от экрана блокировки и не может управлять им.\nЕсли у вас возникнут трудности с экраном блокировки, свяжитесь с производителем.</string>
-    <string name="separation_warning_disable">Всегда показывать это напоминание</string>
+    <string name="separation_warning_disable">Всегда напоминать</string>
     <string name="emergency_exit">По какой-то причине Lock Pattern Generator взорвался.\n\nВаши настройки были сброшены, чтобы это поправить.</string>
     <string name="text_wall_failure">Failed to load text wall&lt;br/&gt;&lt;br/&gt;</string>
 

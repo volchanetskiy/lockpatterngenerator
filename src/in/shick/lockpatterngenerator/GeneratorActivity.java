@@ -1,5 +1,5 @@
 /*
-Copyright 2010-2012 Michael Shick
+Copyright 2010-2013 Michael Shick
 
 This file is part of 'Lock Pattern Generator'.
 

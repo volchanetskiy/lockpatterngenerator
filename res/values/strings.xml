@@ -47,7 +47,7 @@ You should have received a copy of the GNU General Public License along with
     <string name="highlight_pref">Highlighting</string>
     <string name="highlight_pref_summary">Make patterns easier to follow</string>
     <string name="separation_reminder_pref">Separation Reminder</string>
-    <string name="separation_reminder_pref_summary">Remind users that this program is not locking their device</string>
+    <string name="separation_reminder_pref_summary">Remind me that this program is not locking my device</string>
     <string name="tactile_feedback_pref">Tactile Feedback</string>
     <string name="tactile_feedback_pref_summary">When practicing, vibrate on touching a node</string>
 </resources>
